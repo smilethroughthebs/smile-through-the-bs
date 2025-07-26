@@ -1,0 +1,4 @@
+To update text (Impact Story or Wall of Gratitude):
+1. Go to Netlify dashboard after deployment.
+2. Use the browser editor to update content directly.
+3. Click "Save" – site redeploys automatically.
