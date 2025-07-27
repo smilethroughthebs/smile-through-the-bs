@@ -1,47 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Smile Through The BS Foundation</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
+  <header class="sticky-header">
+    <div class="logo">Smile Through The BS</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="donate.html" class="donate-btn">Donate Now</a>
+    </nav>
+  </header>
 
-<header class="sticky-header">
-  <div class="logo">
-    <a href="index.html">Smile Through The BS</a>
-  </div>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="donate.html" class="donate-btn">Donate Now</a>
-  </nav>
-</header>
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Together We Can Help People Smile Through Life’s Challenges</h1>
+      <p>Your support helps us provide hope, resources, and relief to those in need.</p>
+      <button class="donate-btn" onclick="window.location.href='donate.html'">Donate Now</button>
+    </div>
+  </section>
 
-<section class="hero">
-  <div class="hero-content">
-    <h1>Helping People Smile Through Life’s Challenges</h1>
-    <p>Together, we can bring hope and support to those who need it most.</p>
-    <button class="donate-btn" onclick="window.location.href='donate.html'">
-      Donate Now
-    </button>
-  </div>
-</section>
+  <section class="how-it-works">
+    <h2>How It Works</h2>
+    <div class="steps">
+      <div class="step">
+        <img src="images/choose.png" alt="Choose crypto">
+        <h3>Choose Your Crypto</h3>
+        <p>Select the cryptocurrency you want to donate.</p>
+      </div>
+      <div class="step">
+        <img src="images/donate.png" alt="Donate securely">
+        <h3>Donate Securely</h3>
+        <p>Make your donation easily and securely.</p>
+      </div>
+      <div class="step">
+        <img src="images/support.png" alt="Support people">
+        <h3>Support People</h3>
+        <p>Your donation brings smiles and hope to people in need.</p>
+      </div>
+    </div>
+  </section>
 
-<section class="mission">
-  <div class="container">
-    <h2>Our Mission</h2>
-    <p>
-      At Smile Through The BS Foundation, we focus on providing emotional support,  
-      financial relief, and community resources for people facing life’s toughest challenges.
-    </p>
-  </div>
-</section>
-
-<footer>
-  &copy; 2025 Smile Through The BS Foundation. All Rights Reserved.
-</footer>
-
+  <footer>
+    &copy; 2025 Smile Through The BS Foundation. All Rights Reserved.
+  </footer>
 </body>
 </html>
