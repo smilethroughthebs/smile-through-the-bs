@@ -1,138 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Donate - Smile Through The BS Foundation</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f8f8f8;
-      color: #333;
-    }
-    header {
-      background: #f68b1f;
-      padding: 20px;
-      text-align: center;
-    }
-    header a {
-      background: #fff;
-      color: #f68b1f;
-      padding: 10px 20px;
-      text-decoration: none;
-      border-radius: 5px;
-      font-weight: bold;
-      transition: background 0.3s ease;
-    }
-    header a:hover { background: #f0f0f0; }
-    h1 {
-      text-align: center;
-      margin-top: 30px;
-      color: #f68b1f;
-    }
-    p.intro {
-      text-align: center;
-      font-size: 18px;
-      max-width: 600px;
-      margin: 10px auto 40px auto;
-      line-height: 1.6;
-    }
-    .wallet-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      padding: 0 20px 50px 20px;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-    .wallet {
-      background: #fff;
-      padding: 20px;
-      text-align: center;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease;
-    }
-    .wallet:hover { transform: translateY(-5px); }
-    .wallet h3 { color: #f68b1f; margin-bottom: 15px; }
-    .qr {
-      width: 200px;
-      height: 200px;
-      margin-bottom: 15px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    }
-    .copy-btn {
-      background: #f68b1f;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s ease;
-    }
-    .copy-btn:hover { background: #d97706; }
-    footer {
-      background: #333;
-      color: #fff;
-      text-align: center;
-      padding: 15px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
+  <header class="sticky-header">
+    <div class="logo-container">
+      <img src="images/logo.png" alt="Smile Through The BS Logo" class="logo-img">
+      <span class="logo-text">Smile Through The BS</span>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="donate.html" class="donate-btn">Donate Now</a>
+    </nav>
+  </header>
 
-<header>
-  <a href="index.html">← Back to Home</a>
-</header>
+  <section class="donate-page">
+    <div class="container">
+      <h1>Donate with Cryptocurrency</h1>
+      <p>Your donations help support people through life’s challenges.</p>
 
-<h1>Support Our Cause</h1>
-<p class="intro">
-  Your donations help us support individuals and families in need,  
-  ensuring they can smile through life’s toughest challenges.  
-  Every contribution matters, no matter how small.
-</p>
+      <div class="wallets">
+        <div class="wallet">
+          <i class="fab fa-bitcoin icon"></i>
+          <h3>Bitcoin (BTC)</h3>
+          <img src="images/btc-qr.png" alt="BTC QR" class="qr-code">
+          <button onclick="copyAddress('bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr')">
+            <i class="fas fa-copy"></i> Copy Address
+          </button>
+        </div>
+        <div class="wallet">
+          <i class="fab fa-ethereum icon"></i>
+          <h3>Ethereum (ETH)</h3>
+          <img src="images/eth-qr.png" alt="ETH QR" class="qr-code">
+          <button onclick="copyAddress('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">
+            <i class="fas fa-copy"></i> Copy Address
+          </button>
+        </div>
+        <div class="wallet">
+          <i class="fas fa-dollar-sign icon"></i>
+          <h3>USDT</h3>
+          <img src="images/usdt-qr.png" alt="USDT QR" class="qr-code">
+          <button onclick="copyAddress('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">
+            <i class="fas fa-copy"></i> Copy Address
+          </button>
+        </div>
+        <div class="wallet">
+          <i class="fas fa-coins icon"></i>
+          <h3>USDC</h3>
+          <img src="images/usdc-qr.png" alt="USDC QR" class="qr-code">
+          <button onclick="copyAddress('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">
+            <i class="fas fa-copy"></i> Copy Address
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<section class="wallet-grid">
-  <div class="wallet">
-    <h3>Bitcoin (BTC)</h3>
-    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=bitcoin:bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr" alt="BTC QR">
-    <button class="copy-btn" onclick="copyToClipboard('bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr')">Copy Address</button>
-  </div>
+  <footer>
+    &copy; 2025 Smile Through The BS Foundation. All Rights Reserved.
+  </footer>
 
-  <div class="wallet">
-    <h3>Ethereum (ETH)</h3>
-    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="ETH QR">
-    <button class="copy-btn" onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
-  </div>
-
-  <div class="wallet">
-    <h3>Tether (USDT - ETH)</h3>
-    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="USDT QR">
-    <button class="copy-btn" onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
-  </div>
-
-  <div class="wallet">
-    <h3>USD Coin (USDC - ETH)</h3>
-    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="USDC QR">
-    <button class="copy-btn" onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
-  </div>
-</section>
-
-<footer>
-  &copy; 2025 Smile Through The BS Foundation. All Rights Reserved.
-</footer>
-
-<script>
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    alert('Address copied to clipboard!');
-  });
-}
-</script>
-
+  <script>
+    function copyAddress(address) {
+      navigator.clipboard.writeText(address);
+      alert("Address copied to clipboard!");
+    }
+  </script>
 </body>
 </html>
