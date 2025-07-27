@@ -168,25 +168,25 @@
   <div class="wallet-grid">
     <div class="wallet fade-in">
       <h3>Bitcoin (BTC)</h3>
-      <img class="qr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIC..." alt="BTC QR">
+      <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=bitcoin:bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr" alt="BTC QR">
       <button class="copy-btn" onclick="copyToClipboard('bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr')">Copy Address</button>
     </div>
 
     <div class="wallet fade-in">
       <h3>Ethereum (ETH)</h3>
-      <img class="qr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIC..." alt="ETH QR">
+      <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="ETH QR">
       <button class="copy-btn" onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
     </div>
 
     <div class="wallet fade-in">
       <h3>Tether (USDT - ETH)</h3>
-      <img class="qr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIC..." alt="USDT QR">
+      <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="USDT QR">
       <button class="copy-btn" onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
     </div>
 
     <div class="wallet fade-in">
       <h3>USD Coin (USDC - ETH)</h3>
-      <img class="qr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIC..." alt="USDC QR">
+      <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="USDC QR">
       <button class="copy-btn" onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
     </div>
   </div>
@@ -199,7 +199,6 @@ function copyToClipboard(text) {
   });
 }
 
-// Fade-in animation
 const fadeEls = document.querySelectorAll('.fade-in');
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
