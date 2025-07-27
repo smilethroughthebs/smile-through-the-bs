@@ -161,32 +161,32 @@
     </p>
   </section>
 
- <section id="donate" class="section donate">
+<section id="donate" class="section donate">
   <h2>Donate Now</h2>
   <p>Support us with crypto donations. Every smile matters.</p>
 
   <div class="wallet-grid">
     <div class="wallet fade-in">
       <h3>Bitcoin (BTC)</h3>
-      <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=bitcoin:bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr" alt="BTC QR Code">
+      <img class="qr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIC..." alt="BTC QR">
       <button class="copy-btn" onclick="copyToClipboard('bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr')">Copy Address</button>
     </div>
 
     <div class="wallet fade-in">
       <h3>Ethereum (ETH)</h3>
-      <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="Ethereum QR Code">
+      <img class="qr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIC..." alt="ETH QR">
       <button class="copy-btn" onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
     </div>
 
     <div class="wallet fade-in">
       <h3>Tether (USDT - ETH)</h3>
-      <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="USDT QR Code">
+      <img class="qr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIC..." alt="USDT QR">
       <button class="copy-btn" onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
     </div>
 
     <div class="wallet fade-in">
       <h3>USD Coin (USDC - ETH)</h3>
-      <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="USDC QR Code">
+      <img class="qr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIC..." alt="USDC QR">
       <button class="copy-btn" onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
     </div>
   </div>
@@ -198,6 +198,8 @@ function copyToClipboard(text) {
     alert('Address copied to clipboard!');
   });
 }
+
+// Fade-in animation
 const fadeEls = document.querySelectorAll('.fade-in');
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
@@ -226,14 +228,8 @@ fadeEls.forEach(el => observer.observe(el));
   transform: translateY(30px);
   transition: all 0.6s ease-out;
 }
-.wallet.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-.wallet h3 {
-  margin-bottom: 15px;
-  color: #f68b1f;
-}
+.wallet.visible { opacity: 1; transform: translateY(0); }
+.wallet h3 { margin-bottom: 15px; color: #f68b1f; }
 .qr {
   width: 200px;
   height: 200px;
@@ -251,9 +247,7 @@ fadeEls.forEach(el => observer.observe(el));
   font-weight: bold;
   transition: background 0.3s ease;
 }
-.copy-btn:hover {
-  background: #d97706;
-}
+.copy-btn:hover { background: #d97706; }
 </style>
   </section>
 
