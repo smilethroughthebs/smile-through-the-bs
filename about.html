@@ -161,13 +161,50 @@
     </p>
   </section>
 
-  <section id="donate" class="section donate">
-    <h2>Donate Now</h2>
-    <p>Support us with crypto donations. Every smile matters.</p>
-    <div class="wallet"><strong>BTC:</strong> bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr</div>
-    <div class="wallet"><strong>Ethereum:</strong> 0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09</div>
-    <div class="wallet"><strong>USDT (ETH network):</strong> 0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09</div>
-    <div class="wallet"><strong>USDC (ETH network):</strong> 0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09</div>
+ <section id="donate" class="section donate">
+  <h2>Donate Now</h2>
+  <p>Support us with crypto donations. Every smile matters.</p>
+
+  <div class="wallet">
+    <strong>BTC:</strong> bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr
+    <br><br>
+    <img src="https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=bitcoin:bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr" alt="BTC QR Code">
+    <br><br>
+    <button onclick="copyToClipboard('bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr')">Copy Address</button>
+  </div>
+
+  <div class="wallet">
+    <strong>Ethereum:</strong> 0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09
+    <br><br>
+    <img src="https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="Ethereum QR Code">
+    <br><br>
+    <button onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
+  </div>
+
+  <div class="wallet">
+    <strong>USDT (ETH network):</strong> 0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09
+    <br><br>
+    <img src="https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="USDT QR Code">
+    <br><br>
+    <button onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
+  </div>
+
+  <div class="wallet">
+    <strong>USDC (ETH network):</strong> 0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09
+    <br><br>
+    <img src="https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="USDC QR Code">
+    <br><br>
+    <button onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
+  </div>
+</section>
+
+<script>
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Address copied to clipboard: ' + text);
+  });
+}
+</script>
   </section>
 
   <footer>
