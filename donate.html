@@ -1,80 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Donate - Smile Through The BS Foundation</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      color: #333;
+    }
+    header {
+      background: #f68b1f;
+      padding: 20px;
+      text-align: center;
+    }
+    header a {
+      background: #fff;
+      color: #f68b1f;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    header a:hover { background: #f0f0f0; }
+    h1 {
+      text-align: center;
+      margin-top: 30px;
+      color: #f68b1f;
+    }
+    p.intro {
+      text-align: center;
+      font-size: 18px;
+      max-width: 600px;
+      margin: 10px auto 40px auto;
+      line-height: 1.6;
+    }
+    .wallet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 0 20px 50px 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .wallet {
+      background: #fff;
+      padding: 20px;
+      text-align: center;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    .wallet:hover { transform: translateY(-5px); }
+    .wallet h3 { color: #f68b1f; margin-bottom: 15px; }
+    .qr {
+      width: 200px;
+      height: 200px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .copy-btn {
+      background: #f68b1f;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    .copy-btn:hover { background: #d97706; }
+    footer {
+      background: #333;
+      color: #fff;
+      text-align: center;
+      padding: 15px;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Smile Through The BS Foundation</h1>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="about.html">About Us</a>
-      <a href="donate.html" class="active">Donate</a>
-    </nav>
-  </header>
 
-  <section class="donate-section">
-    <h1>Donate with Cryptocurrency</h1>
-    <p>Your donations help us support individuals and communities through crypto-powered giving. Thank you for your support!</p>
-    
-    <div class="crypto-grid">
-      <!-- Bitcoin -->
-      <div class="crypto-card btc-card">
-        <svg class="crypto-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="#f7931a" d="M16 0a16 16 0 1016 16A16 16 0 0016 0zm1.32 24.26H13.6l.6-2.94h2.38c.9 0 1.2-.52 1.28-1.1.08-.59-.3-1.08-1.02-1.3l-1.36-.43.5-2.57 1.34.43c.7.23 1.16-.18 1.27-.73.1-.54-.24-1.02-.94-1.24l-1.1-.35.6-2.94h2.74c1.47 0 2.64.45 3.16 1.3.54.9.4 1.91-.42 2.44.86.35 1.32 1.14 1.14 2.14-.22 1.11-1.06 1.7-2.36 1.92l.52 2.6c.14.7-.2 1.18-1.02 1.18z"/></svg>
-        <h3>Bitcoin (BTC)</h3>
-        <div id="qrcode-btc"></div>
-        <p id="btc-address">bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr</p>
-        <button class="copy-btn" onclick="copyAddress(this, 'btc-address')">Copy Address</button>
-      </div>
+<header>
+  <a href="index.html">← Back to Home</a>
+</header>
 
-      <!-- Ethereum -->
-      <div class="crypto-card eth-card">
-        <svg class="crypto-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="#3c3c8c" d="M16 0l-.22.78v20.5l.22.22 9.34-5.5z"/><path fill="#34306a" d="M16 0L6.66 15.5l9.34 5.5V.78z"/><path fill="#3c3c8c" d="M16 22.2l-.12.14v8.9l.12.36 9.34-13.2z"/><path fill="#34306a" d="M16 31.6v-9.4l-9.34-4.3z"/></svg>
-        <h3>Ethereum (ETH)</h3>
-        <div id="qrcode-eth"></div>
-        <p id="eth-address">0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09</p>
-        <button class="copy-btn" onclick="copyAddress(this, 'eth-address')">Copy Address</button>
-      </div>
+<h1>Support Our Cause</h1>
+<p class="intro">
+  Your donations help us support individuals and families in need,  
+  ensuring they can smile through life’s toughest challenges.  
+  Every contribution matters, no matter how small.
+</p>
 
-      <!-- USDT -->
-      <div class="crypto-card usdt-card">
-        <svg class="crypto-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="#26a17b" d="M16 0A16 16 0 110 16 16 16 0 0116 0z"/><path fill="#fff" d="M22.5 9.5H9.5v3h4.25v6.5h3.5V12.5H22.5zM16 21c-4.4 0-8-1.12-8-2.5h3c0 .34 2.24 1.25 5 1.25s5-.91 5-1.25h3c0 1.38-3.6 2.5-8 2.5z"/></svg>
-        <h3>Tether (USDT)</h3>
-        <div id="qrcode-usdt"></div>
-        <p id="usdt-address">0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09</p>
-        <button class="copy-btn" onclick="copyAddress(this, 'usdt-address')">Copy Address</button>
-      </div>
+<section class="wallet-grid">
+  <div class="wallet">
+    <h3>Bitcoin (BTC)</h3>
+    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=bitcoin:bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr" alt="BTC QR">
+    <button class="copy-btn" onclick="copyToClipboard('bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr')">Copy Address</button>
+  </div>
 
-      <!-- USDC -->
-      <div class="crypto-card usdc-card">
-        <svg class="crypto-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="#2775ca" d="M16 0a16 16 0 1016 16A16 16 0 0016 0zm-.1 24.5v-1.6c-2.5-.1-4.3-1.4-4.6-3.6h1.7c.2 1.1 1.2 2.1 3 2.2V11.5c-1.8-.2-3-1.2-3.2-2.7-.1-1.4 1.1-2.7 3.2-3V4.5h1.4v1.3c2.1.1 3.6 1.3 4 3.2H19c-.3-.9-1-1.5-2.3-1.6v6.2c2.1.2 3.4 1.3 3.6 3.1.2 1.7-1 3.2-3.6 3.5v1.6z"/></svg>
-        <h3>USD Coin (USDC)</h3>
-        <div id="qrcode-usdc"></div>
-        <p id="usdc-address">0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09</p>
-        <button class="copy-btn" onclick="copyAddress(this, 'usdc-address')">Copy Address</button>
-      </div>
-    </div>
-  </section>
+  <div class="wallet">
+    <h3>Ethereum (ETH)</h3>
+    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="ETH QR">
+    <button class="copy-btn" onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
+  </div>
 
-  <script>
-    // QR Codes
-    new QRCode(document.getElementById("qrcode-btc"), { text: document.getElementById("btc-address").innerText, width: 200, height: 200 });
-    new QRCode(document.getElementById("qrcode-eth"), { text: document.getElementById("eth-address").innerText, width: 200, height: 200 });
-    new QRCode(document.getElementById("qrcode-usdt"), { text: document.getElementById("usdt-address").innerText, width: 200, height: 200 });
-    new QRCode(document.getElementById("qrcode-usdc"), { text: document.getElementById("usdc-address").innerText, width: 200, height: 200 });
+  <div class="wallet">
+    <h3>Tether (USDT - ETH)</h3>
+    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="USDT QR">
+    <button class="copy-btn" onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
+  </div>
 
-    // Copy Button
-    function copyAddress(button, id) {
-      const copyText = document.getElementById(id).innerText;
-      navigator.clipboard.writeText(copyText).then(() => {
-        button.innerText = "Copied!";
-        setTimeout(() => (button.innerText = "Copy Address"), 1500);
-      });
-    }
-  </script>
+  <div class="wallet">
+    <h3>USD Coin (USDC - ETH)</h3>
+    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ethereum:0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09" alt="USDC QR">
+    <button class="copy-btn" onclick="copyToClipboard('0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09')">Copy Address</button>
+  </div>
+</section>
+
+<footer>
+  &copy; 2025 Smile Through The BS Foundation. All Rights Reserved.
+</footer>
+
+<script>
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Address copied to clipboard!');
+  });
+}
+</script>
+
 </body>
 </html>
