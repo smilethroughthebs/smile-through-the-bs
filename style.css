@@ -1,12 +1,4 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #f7f7f7;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-}
-header {
-  background: #333;/* General Reset */
+/* ===== Reset ===== */
 * {
   margin: 0;
   padding: 0;
@@ -16,24 +8,24 @@ header {
 body {
   font-family: 'Inter', sans-serif;
   line-height: 1.6;
-  background: #f7f9fc;
   color: #333;
+  background: #f9fafc;
 }
 
-/* Header */
-header.sticky-header {
+/* ===== Navbar ===== */
+.navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
   background: #ffffff;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 999;
 }
 
-.logo-container {
+.nav-logo {
   display: flex;
   align-items: center;
 }
@@ -45,19 +37,19 @@ header.sticky-header {
 }
 
 .logo-text {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: bold;
   color: #0077b6;
 }
 
-header nav a {
-  margin: 0 10px;
+.nav-links a {
   text-decoration: none;
-  color: #333;
+  margin: 0 15px;
   font-weight: 600;
+  color: #333;
 }
 
-header nav a:hover {
+.nav-links a:hover {
   color: #0077b6;
 }
 
@@ -65,22 +57,25 @@ header nav a:hover {
   padding: 0.5rem 1rem;
   background: #0077b6;
   color: #fff !important;
-  border: none;
   border-radius: 5px;
-  cursor: pointer;
   font-weight: bold;
+  text-decoration: none;
 }
 
 .donate-btn:hover {
   background: #005f8d;
 }
 
-/* Hero Section */
+/* ===== Hero Section ===== */
 .hero {
-  background: #0077b6;
-  color: white;
-  padding: 4rem 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
+  min-height: 70vh;
+  background: linear-gradient(135deg, #0077b6, #0096c7);
+  color: #fff;
+  padding: 2rem;
 }
 
 .hero h1 {
@@ -93,38 +88,49 @@ header nav a:hover {
   margin-bottom: 1.5rem;
 }
 
-.hero .donate-btn {
+.hero-btn {
   font-size: 1rem;
+  background: #ffffff;
+  color: #0077b6 !important;
 }
 
-/* How It Works Section */
-.how-it-works {
-  padding: 3rem 2rem;
-  text-align: center;
+.hero-btn:hover {
+  background: #e2e2e2;
 }
 
-.how-it-works h2 {
-  margin-bottom: 2rem;
-  color: #0077b6;
-}
-
-.steps {
+/* ===== Info Section ===== */
+.info-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
+  padding: 3rem 2rem;
+  background: #ffffff;
 }
 
-.step {
- 
+.info-box {
+  background: #f1f5f9;
+  padding: 2rem;
+  border-radius: 10px;
+  text-align: center;
+  transition: 0.3s;
+}
 
-  color: #fff;
-  padding: 20px;
+.info-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
 }
-section {
-  padding: 20px;
+
+.info-box .icon {
+  font-size: 2rem;
+  color: #0077b6;
+  margin-bottom: 1rem;
 }
+
+/* ===== Footer ===== */
 footer {
-  background: #333;
-  color: #fff;
-  padding: 10px;
+  text-align: center;
+  padding: 1rem;
+  background: #fff;
+  border-top: 1px solid #ddd;
+  margin-top: 2rem;
 }
