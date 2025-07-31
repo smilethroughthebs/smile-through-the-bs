@@ -67,7 +67,6 @@ body {
 .donate-btn:hover {
   background: #e0a800;
 }
-
 /* ===== Hero Section ===== */
 .hero {
   display: flex;
@@ -76,10 +75,11 @@ body {
   text-align: center;
   min-height: 70vh;
   background: linear-gradient(135deg, rgba(0,87,183,0.9), rgba(0,47,108,0.9)),
-              url('images/crypto-bg.png') center/cover no-repeat;
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><g fill="none" stroke="%23f4b400" stroke-width="1" opacity="0.3"><path d="M0 0l800 600M800 0L0 600M400 0v600M0 300h800"/></g></svg>') 
+    center/cover no-repeat;
   color: #fff;
   padding: 2rem;
-  position: relative; /* Important for glow */
+  position: relative;
 }
 .hero h1 {
   font-size: 2.2rem;
