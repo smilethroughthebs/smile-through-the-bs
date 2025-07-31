@@ -18,6 +18,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
+  flex-wrap: wrap;
 }
 .nav-logo {
   display: flex;
@@ -30,7 +31,7 @@ body {
 .logo-text {
   font-weight: 600;
   font-size: 1.2rem;
-  color: #0057b7;
+  color: #444;
 }
 .nav-links a {
   margin-left: 20px;
@@ -50,7 +51,7 @@ body {
   background: #e0a000;
 }
 
-/* HERO */
+/* HERO (Softer color) */
 .hero {
   display: flex;
   justify-content: center;
@@ -58,7 +59,7 @@ body {
   text-align: center;
   min-height: 70vh;
   background: 
-    linear-gradient(135deg, rgba(0,87,183,0.9), rgba(0,47,108,0.9)),
+    linear-gradient(135deg, rgba(255,200,100,0.85), rgba(255,150,50,0.85)),
     url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><g fill="none" stroke="%23f4b400" stroke-width="1" opacity="0.3"><path d="M0 0l800 600M800 0L0 600M400 0v600M0 300h800"/></g></svg>')
     center/cover no-repeat;
   color: #fff;
@@ -91,11 +92,11 @@ body {
   z-index: 1;
 }
 .hero h1 {
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   margin-bottom: 1rem;
 }
 .hero p {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   max-width: 600px;
   margin: 0 auto 2rem auto;
 }
@@ -109,7 +110,6 @@ body {
   border-radius: 8px;
   text-decoration: none;
   font-weight: bold;
-  transition: transform 0.2s ease;
   animation: pulse 2s infinite;
 }
 @keyframes pulse {
@@ -142,10 +142,32 @@ body {
 
 /* FOOTER */
 footer {
-  background: #0057b7;
+  background: #222;
   color: #fff;
   text-align: center;
   padding: 1rem 0;
   font-size: 0.9rem;
   margin-top: 2rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .nav-links {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .nav-links a {
+    margin: 5px 10px;
+  }
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+  .hero p {
+    font-size: 1rem;
+  }
 }
