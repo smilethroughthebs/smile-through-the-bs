@@ -31,15 +31,15 @@ body {
 }
 
 .logo-img {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   margin-right: 10px;
 }
 
 .logo-text {
   font-size: 1.3rem;
   font-weight: bold;
-  color: #0077b6;
+  color: #0057b7; /* Blue accent */
 }
 
 .nav-links a {
@@ -47,23 +47,25 @@ body {
   margin: 0 15px;
   font-weight: 600;
   color: #333;
+  transition: 0.3s;
 }
 
 .nav-links a:hover {
-  color: #0077b6;
+  color: #f4b400; /* Gold hover */
 }
 
 .donate-btn {
   padding: 0.5rem 1rem;
-  background: #0077b6;
+  background: linear-gradient(135deg, #f4b400, #f7d87c);
   color: #fff !important;
   border-radius: 5px;
   font-weight: bold;
   text-decoration: none;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .donate-btn:hover {
-  background: #005f8d;
+  background: #e0a800;
 }
 
 /* ===== Hero Section ===== */
@@ -73,13 +75,13 @@ body {
   align-items: center;
   text-align: center;
   min-height: 70vh;
-  background: linear-gradient(135deg, #0077b6, #0096c7);
+  background: linear-gradient(135deg, #0057b7, #002f6c);
   color: #fff;
   padding: 2rem;
 }
 
 .hero h1 {
-  font-size: 2rem;
+  font-size: 2.2rem;
   margin-bottom: 1rem;
 }
 
@@ -90,12 +92,12 @@ body {
 
 .hero-btn {
   font-size: 1rem;
-  background: #ffffff;
-  color: #0077b6 !important;
+  background: #f4b400;
+  color: #fff !important;
 }
 
 .hero-btn:hover {
-  background: #e2e2e2;
+  background: #e0a800;
 }
 
 /* ===== Info Section ===== */
@@ -122,7 +124,7 @@ body {
 
 .info-box .icon {
   font-size: 2rem;
-  color: #0077b6;
+  color: #f4b400; /* Gold icon */
   margin-bottom: 1rem;
 }
 
