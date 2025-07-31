@@ -75,11 +75,12 @@ body {
   align-items: center;
   text-align: center;
   min-height: 70vh;
-  background: linear-gradient(135deg, #0057b7, #002f6c);
+  background: linear-gradient(135deg, rgba(0,87,183,0.9), rgba(0,47,108,0.9)),
+              url('images/crypto-bg.png') center/cover no-repeat;
   color: #fff;
   padding: 2rem;
+  position: relative; /* Important for glow */
 }
-
 .hero h1 {
   font-size: 2.2rem;
   margin-bottom: 1rem;
