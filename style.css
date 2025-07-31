@@ -136,3 +136,30 @@ footer {
   border-top: 1px solid #ddd;
   margin-top: 2rem;
 }
+/* === Animated Glow Effect === */
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%;
+  background: radial-gradient(circle at 20% 40%, rgba(244,180,0,0.2) 0%, transparent 60%),
+              radial-gradient(circle at 80% 60%, rgba(0,87,183,0.2) 0%, transparent 60%);
+  z-index: 0;
+  animation: glowMove 8s infinite alternate ease-in-out;
+}
+
+@keyframes glowMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(20px, -20px);
+  }
+}
+
+.hero .hero-content {
+  position: relative;
+  z-index: 1; /* Keep text above glow */
+}
