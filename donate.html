@@ -21,43 +21,40 @@
   </nav>
 
   <!-- Donate Section -->
-  <section class="donate-section">
-    <h1>Donate with Cryptocurrency</h1>
-    <p>Your donations help us support individuals and communities through crypto-powered giving. Thank you for your support!</p>
-    
+ <section class="donate-section">
+  <h1>Donate with Cryptocurrency</h1>
+  <p>Your donations help us support individuals and communities through crypto-powered giving. Thank you for your support!</p>
+  
+  <div class="crypto-grid">
     <div class="crypto-card">
       <h3>Bitcoin (BTC)</h3>
-      <img src="btc-qr.png" alt="BTC QR Code" class="qr-img" />
+      <img src="https://api.qrserver.com/v1/create-qr-code/?data=bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr&size=200x200" alt="BTC QR Code" />
       <p id="btc-address">bc1q9h4v8aclkg56uamjmxmcd7eqteree2ve5rvjyr</p>
-      <button class="copy-btn" onclick="copyAddress('btc-address')">Copy Address</button>
+      <button class="copy-btn" onclick="copyAddress(this, 'btc-address')">Copy Address</button>
     </div>
 
     <div class="crypto-card">
       <h3>Ethereum (ETH)</h3>
-      <img src="eth-qr.png" alt="ETH QR Code" class="qr-img" />
+      <img src="https://api.qrserver.com/v1/create-qr-code/?data=0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09&size=200x200" alt="ETH QR Code" />
       <p id="eth-address">0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09</p>
-      <button class="copy-btn" onclick="copyAddress('eth-address')">Copy Address</button>
+      <button class="copy-btn" onclick="copyAddress(this, 'eth-address')">Copy Address</button>
     </div>
 
     <div class="crypto-card">
       <h3>USDT (ERC-20)</h3>
-      <img src="usdt-qr.png" alt="USDT QR Code" class="qr-img" />
+      <img src="https://api.qrserver.com/v1/create-qr-code/?data=0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09&size=200x200" alt="USDT QR Code" />
       <p id="usdt-address">0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09</p>
-      <button class="copy-btn" onclick="copyAddress('usdt-address')">Copy Address</button>
+      <button class="copy-btn" onclick="copyAddress(this, 'usdt-address')">Copy Address</button>
     </div>
 
     <div class="crypto-card">
       <h3>USDC (ERC-20)</h3>
-      <img src="usdc-qr.png" alt="USDC QR Code" class="qr-img" />
+      <img src="https://api.qrserver.com/v1/create-qr-code/?data=0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09&size=200x200" alt="USDC QR Code" />
       <p id="usdc-address">0x3Fa23a1981D997868F7d54A519EB9378cC8c4B09</p>
-      <button class="copy-btn" onclick="copyAddress('usdc-address')">Copy Address</button>
+      <button class="copy-btn" onclick="copyAddress(this, 'usdc-address')">Copy Address</button>
     </div>
-  </section>
-
-  <!-- Footer -->
-  <footer>
-    <p>&copy; 2025 Smile Through The BS Foundation. All rights reserved.</p>
-  </footer>
+  </div>
+</section>
 
   <!-- Copy Address Script -->
   <script>
