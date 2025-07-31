@@ -37,28 +37,42 @@ body {
   font-size: 1.2rem;
   color: #0057b6;
 }
+/* ===== Navigation Links ===== */
 .nav-links a {
-  margin-left: 20px;
+  margin: 0 15px;
   text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
   color: #333;
-  font-weight: 500;
-  transition: color 0.3s;
+  padding-bottom: 4px;
+  border-bottom: 2px solid transparent;
+  display: inline-block;
+  transition: color 0.3s, border-color 0.3s, transform 0.2s ease-in-out;
 }
 .nav-links a:hover {
   color: #0057b6;
+  border-bottom: 2px solid #0057b6;
+  transform: translateY(-3px);
 }
+.nav-links a.active {
+  color: #0057b6;
+  border-bottom: 2px solid #0057b6;
+  font-size: 1.05rem;
+}
+/* ===== Donate Button ===== */
 .nav-links .donate-btn {
-  padding: 8px 16px;
-  background: #0057b6;
+  padding: 8px 20px;
+  background: #f4b400;
   color: #fff !important;
   border-radius: 5px;
-  font-weight: 600;
-  transition: background 0.3s ease;
+  font-weight: 700;
+  transition: background 0.3s, transform 0.2s ease-in-out, box-shadow 0.3s;
 }
 .nav-links .donate-btn:hover {
-  background: #004080;
+  background: #e0a000;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 4px 10px rgba(244,180,0,0.4);
 }
-
 /* ===== Hero Section ===== */
 .hero {
   display: flex;
