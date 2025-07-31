@@ -1,13 +1,17 @@
-/* Google Fonts */
-body {
-  font-family: 'Inter', sans-serif;
+/* ===== Reset & Base ===== */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Inter', sans-serif;
   background: #f9f9f9;
   color: #333;
+  line-height: 1.6;
 }
 
-/* NAVBAR */
+/* ===== Navbar ===== */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -31,35 +35,39 @@ body {
 .logo-text {
   font-weight: 600;
   font-size: 1.2rem;
-  color: #444;
+  color: #0057b6;
 }
 .nav-links a {
   margin-left: 20px;
   text-decoration: none;
   color: #333;
   font-weight: 500;
+  transition: color 0.3s;
+}
+.nav-links a:hover {
+  color: #0057b6;
 }
 .nav-links .donate-btn {
   padding: 8px 16px;
-  background: #f4b400;
-  color: #fff;
+  background: #0057b6;
+  color: #fff !important;
   border-radius: 5px;
   font-weight: 600;
   transition: background 0.3s ease;
 }
 .nav-links .donate-btn:hover {
-  background: #e0a000;
+  background: #004080;
 }
 
-/* HERO with Blue Crypto Grid */
+/* ===== Hero Section ===== */
 .hero {
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
   min-height: 70vh;
-  background: 
-    linear-gradient(135deg, rgba(0,87,183,0.95), rgba(0,47,108,0.95)),
+  background:
+    linear-gradient(135deg, rgba(0,87,183,0.9), rgba(0,47,108,0.9)),
     url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><g fill="none" stroke="%23ffffff" stroke-width="0.5" opacity="0.1"><path d="M0 0L800 0L800 600L0 600Z M50 0L50 600 M100 0L100 600 M150 0L150 600 M0 50L800 50 M0 100L800 100"/></g></svg>')
     center/cover no-repeat;
   color: #fff;
@@ -74,65 +82,70 @@ body {
 .hero::before {
   content: "";
   position: absolute;
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 100%;
-  background: radial-gradient(circle at 30% 30%, rgba(244,180,0,0.3) 0%, transparent 60%),
-              radial-gradient(circle at 70% 70%, rgba(0,150,255,0.3) 0%, transparent 60%);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(244,180,0,0.3) 0%, transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(0,150,255,0.3) 0%, transparent 60%);
   z-index: 0;
   animation: glowMove 8s infinite alternate ease-in-out;
 }
 @keyframes glowMove {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(30px, -30px); }
+  0% { transform: translate(0,0); }
+  100% { transform: translate(30px,-30px); }
 }
 .hero .hero-content {
   position: relative;
   z-index: 1;
 }
 .hero h1 {
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   margin-bottom: 1rem;
 }
 .hero p {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   max-width: 600px;
-  margin: 0 auto 2rem auto;
+  margin: 0 auto 2rem;
 }
 
-/* DONATE BUTTON PULSE */
+/* ===== Hero Button Pulse ===== */
 .hero-btn {
   padding: 12px 28px;
   font-size: 1.1rem;
   background: #f4b400;
-  color: #fff;
+  color: #fff !important;
   border-radius: 8px;
   text-decoration: none;
   font-weight: bold;
   animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0% { transform: scale(1); box-shadow: 0 0 0 rgba(244,180,0, 0.4); }
-  50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(244,180,0, 0.6); }
-  100% { transform: scale(1); box-shadow: 0 0 0 rgba(244,180,0, 0.4); }
+  transition: background 0.3s;
 }
 .hero-btn:hover {
   background: #e0a000;
 }
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(244,180,0,0.4); }
+  50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(244,180,0,0.6); }
+  100% { transform: scale(1); box-shadow: 0 0 0 rgba(244,180,0,0.4); }
+}
 
-/* INFO SECTION */
+/* ===== Info Section ===== */
 .info-section {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
   padding: 3rem 2rem;
   background: #fff;
-  flex-wrap: wrap;
 }
 .info-box {
   max-width: 300px;
-  text-align: center;
   margin: 1rem;
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.info-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
 }
 .info-box .icon {
   font-size: 2rem;
@@ -140,9 +153,9 @@ body {
   margin-bottom: 1rem;
 }
 
-/* FOOTER */
+/* ===== Footer ===== */
 footer {
-  background: #222;
+  background: #0057b6;
   color: #fff;
   text-align: center;
   padding: 1rem 0;
@@ -150,7 +163,7 @@ footer {
   margin-top: 2rem;
 }
 
-/* RESPONSIVE */
+/* ===== Responsive ===== */
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;
@@ -169,5 +182,9 @@ footer {
   }
   .hero p {
     font-size: 1rem;
+  }
+  .info-section {
+    flex-direction: column;
+    align-items: center;
   }
 }
