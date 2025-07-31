@@ -5,40 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About Us - Smile Through The BS Foundation</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-  <header class="sticky-header">
-    <div class="logo-container">
-      <img src="images/logo.png" alt="Smile Through The BS Logo" class="logo-img">
-      <span class="logo-text">Smile Through The BS</span>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-logo">
+      <img src="logo.png" alt="Smile Through The BS Foundation Logo" class="logo-img" />
+      <span class="logo-text">Smile Through The BS Foundation</span>
     </div>
-    <nav>
+    <div class="nav-links">
       <a href="index.html">Home</a>
-      <a href="about.html">About</a>
+      <a href="about.html" class="active">About</a>
       <a href="donate.html" class="donate-btn">Donate Now</a>
-    </nav>
-  </header>
+    </div>
+  </nav>
 
-  <section class="about-page">
-    <div class="container">
+  <!-- Hero Section -->
+  <section class="hero about-hero">
+    <div class="hero-content">
       <h1>About Us</h1>
-      <p>
-        Smile Through The BS Foundation helps individuals and families facing difficult challenges by 
-        offering hope, resources, and community support.
-      </p>
-      <p>
-        Our mission is to help people smile through their toughest times. Every donation extends our programs 
-        and impacts more lives.
-      </p>
-      <button class="donate-btn" onclick="window.location.href='donate.html'">Donate Now</button>
+      <p>We are committed to helping people smile through life’s challenges by leveraging the power of community and cryptocurrency donations.</p>
     </div>
   </section>
 
+  <!-- Mission Section -->
+  <section class="info-section">
+    <div class="info-box">
+      <div class="icon">❤️</div>
+      <h3>Our Mission</h3>
+      <p>To provide emotional and financial support to individuals and communities facing adversity, ensuring no one faces challenges alone.</p>
+    </div>
+    <div class="info-box">
+      <div class="icon">🌍</div>
+      <h3>Our Vision</h3>
+      <p>A world where kindness, generosity, and technology unite to create positive change for people in need.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
   <footer>
-    &copy; 2025 Smile Through The BS Foundation. All Rights Reserved.
+    <p>&copy; 2025 Smile Through The BS Foundation. All rights reserved.</p>
   </footer>
 </body>
 </html>
