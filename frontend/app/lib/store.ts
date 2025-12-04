@@ -32,6 +32,8 @@ interface Wallet {
   lockedBalance: number;
   totalEarnings: number;
   referralEarnings: number;
+  totalDeposits: number;
+  totalWithdrawals: number;
 }
 
 // Auth store interface
