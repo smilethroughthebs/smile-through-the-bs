@@ -232,7 +232,7 @@ export default function PlansPage() {
                               ? 'bg-gradient-to-r from-primary-500 to-primary-600'
                               : ''
                           }`}
-                          variant={plan.isPopular ? 'default' : 'outline'}
+                          variant={plan.isPopular ? 'primary' : 'outline'}
                         >
                           Get Started
                           <ArrowRight size={18} className="ml-2" />
