@@ -22,6 +22,7 @@ interface User {
   avatar?: string;
   theme: string;
   preferredLanguage: string;
+  referralCode?: string;
 }
 
 // Wallet interface
