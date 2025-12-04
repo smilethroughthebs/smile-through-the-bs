@@ -112,7 +112,7 @@ export default function InvestmentsPage() {
     setIsLoading(true);
     try {
       const [investmentsRes, summaryRes] = await Promise.all([
-        investmentAPI.getAll(),
+        investmentAPI.getMyInvestments(),
         investmentAPI.getSummary(),
       ]);
       
@@ -161,7 +161,7 @@ export default function InvestmentsPage() {
     }
 
     try {
-      await investmentAPI.activate({
+      await investmentAPI.createInvestment({
         planId: selectedPlan.id,
         amount,
       });
@@ -597,5 +597,6 @@ export default function InvestmentsPage() {
     </motion.div>
   );
 }
+
 
 
