@@ -289,7 +289,9 @@ export default function AdminWithdrawalsPage() {
                             <p className="text-sm text-gray-500">{withdrawal.userId?.email || 'N/A'}</p>
                           </div>
                           {withdrawal.userId?.kycStatus !== 'approved' && (
-                            <AlertTriangle className="text-yellow-500" size={16} title="KYC not verified" />
+                            <span title="KYC not verified">
+                              <AlertTriangle className="text-yellow-500" size={16} />
+                            </span>
                           )}
                         </div>
                       </td>
