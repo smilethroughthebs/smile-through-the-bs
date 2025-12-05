@@ -2,7 +2,7 @@
 
 /**
  * VARLIXO - WALLET PAGE
- * Main wallet overview with balance and quick actions
+ * Main wallet overview with navigation to deposit/withdraw pages
  */
 
 import { useEffect, useState } from 'react';
@@ -16,7 +16,6 @@ import {
   XCircle,
   TrendingUp,
   Sparkles,
-  CreditCard,
   Gift,
   Building2,
   ChevronRight,
@@ -163,13 +162,13 @@ export default function WalletPage() {
 
       {/* Quick Actions */}
       <div className="flex gap-4">
-        <Link href="/dashboard/wallet/deposit" className="flex-1 sm:flex-none">
-          <Button size="lg" className="w-full sm:w-auto min-w-[160px]" leftIcon={<ArrowDownLeft size={20} />}>
+        <Link href="/dashboard/wallet/deposit">
+          <Button size="lg" leftIcon={<ArrowDownLeft size={20} />}>
             Deposit Funds
           </Button>
         </Link>
-        <Link href="/dashboard/wallet/withdraw" className="flex-1 sm:flex-none">
-          <Button variant="secondary" size="lg" className="w-full sm:w-auto min-w-[160px]" leftIcon={<ArrowUpRight size={20} />}>
+        <Link href="/dashboard/wallet/withdraw">
+          <Button variant="secondary" size="lg" leftIcon={<ArrowUpRight size={20} />}>
             Withdraw
           </Button>
         </Link>
