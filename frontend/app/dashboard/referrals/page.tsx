@@ -198,6 +198,71 @@ export default function ReferralsPage() {
         </Card>
       </motion.div>
 
+      {/* Earnings Chart */}
+      <motion.div variants={fadeInUp}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp size={20} className="text-primary-500" />
+              Earnings Overview
+            </CardTitle>
+          </CardHeader>
+
+          <div className="space-y-6">
+            {/* Simple Bar Chart */}
+            <div className="h-48 flex items-end justify-between gap-2">
+              {[
+                { month: 'Jul', amount: 120 },
+                { month: 'Aug', amount: 280 },
+                { month: 'Sep', amount: 450 },
+                { month: 'Oct', amount: 320 },
+                { month: 'Nov', amount: 580 },
+                { month: 'Dec', amount: referralStats.thisMonthEarnings },
+              ].map((data, index) => {
+                const maxAmount = 600;
+                const height = (data.amount / maxAmount) * 100;
+                const isCurrentMonth = index === 5;
+                
+                return (
+                  <div key={data.month} className="flex-1 flex flex-col items-center gap-2">
+                    <span className={`text-xs ${isCurrentMonth ? 'text-primary-400' : 'text-gray-500'}`}>
+                      ${data.amount}
+                    </span>
+                    <div className="w-full bg-dark-700 rounded-t-lg relative" style={{ height: '160px' }}>
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{ height: `${height}%` }}
+                        transition={{ duration: 0.8, delay: index * 0.1 }}
+                        className={`absolute bottom-0 left-0 right-0 rounded-t-lg ${
+                          isCurrentMonth 
+                            ? 'bg-gradient-to-t from-primary-600 to-primary-400' 
+                            : 'bg-gradient-to-t from-dark-500 to-dark-400'
+                        }`}
+                      />
+                    </div>
+                    <span className={`text-xs ${isCurrentMonth ? 'text-white font-medium' : 'text-gray-500'}`}>
+                      {data.month}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Legend */}
+            <div className="flex items-center justify-center gap-6 pt-4 border-t border-dark-700">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded bg-dark-400" />
+                <span className="text-sm text-gray-400">Past Months</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded bg-primary-500" />
+                <span className="text-sm text-gray-400">Current Month</span>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+
       {/* Referral Link Section */}
       <motion.div variants={fadeInUp}>
         <Card>
@@ -243,6 +308,51 @@ export default function ReferralsPage() {
                 <Button onClick={shareReferral} leftIcon={<ExternalLink size={18} />}>
                   Share
                 </Button>
+              </div>
+            </div>
+
+            {/* QR Code */}
+            <div className="pt-4 border-t border-dark-700">
+              <label className="block text-sm text-gray-400 mb-3">QR Code</label>
+              <div className="flex items-start gap-6">
+                <div className="bg-white p-4 rounded-xl">
+                  {/* Simple QR Code using CSS - in production use a QR library */}
+                  <div className="w-32 h-32 relative">
+                    <svg viewBox="0 0 100 100" className="w-full h-full">
+                      {/* QR Code Pattern - Simplified representation */}
+                      <rect fill="#000" width="100" height="100"/>
+                      <rect fill="#fff" x="10" y="10" width="80" height="80"/>
+                      <rect fill="#000" x="15" y="15" width="20" height="20"/>
+                      <rect fill="#000" x="65" y="15" width="20" height="20"/>
+                      <rect fill="#000" x="15" y="65" width="20" height="20"/>
+                      <rect fill="#fff" x="20" y="20" width="10" height="10"/>
+                      <rect fill="#fff" x="70" y="20" width="10" height="10"/>
+                      <rect fill="#fff" x="20" y="70" width="10" height="10"/>
+                      <rect fill="#000" x="40" y="15" width="5" height="5"/>
+                      <rect fill="#000" x="50" y="15" width="5" height="5"/>
+                      <rect fill="#000" x="40" y="25" width="5" height="5"/>
+                      <rect fill="#000" x="45" y="35" width="5" height="5"/>
+                      <rect fill="#000" x="35" y="45" width="5" height="5"/>
+                      <rect fill="#000" x="55" y="45" width="5" height="5"/>
+                      <rect fill="#000" x="45" y="55" width="10" height="10"/>
+                      <rect fill="#000" x="60" y="60" width="5" height="5"/>
+                      <rect fill="#000" x="70" y="50" width="5" height="5"/>
+                      <rect fill="#000" x="80" y="55" width="5" height="5"/>
+                      {/* Center logo */}
+                      <rect fill="#00d4aa" x="40" y="40" width="20" height="20" rx="4"/>
+                      <text x="50" y="54" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">V</text>
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <p className="text-white font-medium mb-2">Scan to Register</p>
+                  <p className="text-gray-400 text-sm mb-4">
+                    Share this QR code with friends. When scanned, it will take them directly to the registration page with your referral code pre-filled.
+                  </p>
+                  <Button variant="secondary" size="sm" onClick={() => toast.success('QR Code downloaded!')}>
+                    Download QR
+                  </Button>
+                </div>
               </div>
             </div>
 

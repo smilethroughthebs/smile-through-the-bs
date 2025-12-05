@@ -23,6 +23,9 @@ import {
   Moon,
   Save,
   Camera,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Card, CardHeader, CardTitle } from '@/app/components/ui/Card';
@@ -327,6 +330,52 @@ export default function SettingsPage() {
                     Active
                   </span>
                 </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Security Activity Log */}
+          <Card>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Security Activity Log</h3>
+                <button className="text-sm text-primary-400 hover:text-primary-300">
+                  View All
+                </button>
+              </div>
+              <div className="space-y-3">
+                {[
+                  { action: 'Login successful', location: 'Lagos, Nigeria', device: 'Chrome • Windows', time: '2 hours ago', type: 'success' },
+                  { action: 'Password changed', location: 'Lagos, Nigeria', device: 'Chrome • Windows', time: '3 days ago', type: 'warning' },
+                  { action: 'Login attempt blocked', location: 'Unknown', device: 'Firefox • Linux', time: '5 days ago', type: 'error' },
+                  { action: '2FA enabled', location: 'Lagos, Nigeria', device: 'Chrome • Windows', time: '1 week ago', type: 'success' },
+                  { action: 'Withdrawal approved', location: 'Lagos, Nigeria', device: 'Mobile Safari', time: '2 weeks ago', type: 'success' },
+                ].map((activity, index) => (
+                  <div key={index} className="flex items-start gap-4 p-3 bg-dark-800/50 rounded-xl">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      activity.type === 'success' 
+                        ? 'bg-green-500/10 text-green-500' 
+                        : activity.type === 'warning' 
+                        ? 'bg-yellow-500/10 text-yellow-500'
+                        : 'bg-red-500/10 text-red-500'
+                    }`}>
+                      {activity.type === 'success' ? (
+                        <CheckCircle size={16} />
+                      ) : activity.type === 'warning' ? (
+                        <AlertTriangle size={16} />
+                      ) : (
+                        <XCircle size={16} />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-medium">{activity.action}</p>
+                      <p className="text-gray-500 text-sm truncate">
+                        {activity.device} • {activity.location}
+                      </p>
+                    </div>
+                    <span className="text-xs text-gray-500 whitespace-nowrap">{activity.time}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </Card>

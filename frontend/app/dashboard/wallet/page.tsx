@@ -49,6 +49,7 @@ export default function WalletPage() {
   const [amount, setAmount] = useState('');
   const [depositInstructions, setDepositInstructions] = useState<any>(null);
   const [copiedAddress, setCopiedAddress] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Withdrawal form
   const [withdrawalData, setWithdrawalData] = useState({
@@ -474,11 +475,43 @@ export default function WalletPage() {
                   <Input
                     label="Amount (USD)"
                     type="number"
-                    placeholder="Enter amount"
+                    placeholder="Enter amount (min $50)"
                     value={withdrawalData.amount}
                     onChange={(e) => setWithdrawalData({ ...withdrawalData, amount: e.target.value })}
                     leftIcon={<span className="text-gray-500">$</span>}
                   />
+
+                  {/* Fee Preview & Processing Time */}
+                  {withdrawalData.amount && parseFloat(withdrawalData.amount) >= 50 && (
+                    <div className="p-4 bg-dark-700/50 rounded-xl space-y-3 border border-dark-600">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Withdrawal Amount</span>
+                        <span className="text-white">${parseFloat(withdrawalData.amount).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-400">Network Fee</span>
+                        <span className="text-yellow-400">
+                          {withdrawalData.paymentMethod?.startsWith('crypto') ? '-$2.50' : '$0.00'}
+                        </span>
+                      </div>
+                      <div className="border-t border-dark-600 pt-3 flex justify-between">
+                        <span className="text-gray-300 font-medium">You'll Receive</span>
+                        <span className="text-green-400 font-bold">
+                          ${(parseFloat(withdrawalData.amount) - (withdrawalData.paymentMethod?.startsWith('crypto') ? 2.5 : 0)).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-gray-500 pt-2">
+                        <Clock size={12} />
+                        <span>
+                          {withdrawalData.paymentMethod?.startsWith('crypto') 
+                            ? 'Processing time: 1-24 hours' 
+                            : withdrawalData.paymentMethod === 'bank_transfer'
+                            ? 'Processing time: 2-5 business days'
+                            : 'Select payment method for timing'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-sm text-gray-400 mb-3">
@@ -534,13 +567,75 @@ export default function WalletPage() {
                     </>
                   )}
 
-                  <Button
-                    className="w-full"
-                    isLoading={isLoading}
-                    onClick={handleWithdrawal}
-                  >
-                    Submit Withdrawal
-                  </Button>
+                  {!showConfirmation ? (
+                    <Button
+                      className="w-full"
+                      onClick={() => {
+                        if (!withdrawalData.amount || parseFloat(withdrawalData.amount) < 50) {
+                          toast.error('Minimum withdrawal is $50');
+                          return;
+                        }
+                        if (!withdrawalData.paymentMethod) {
+                          toast.error('Please select a payment method');
+                          return;
+                        }
+                        setShowConfirmation(true);
+                      }}
+                    >
+                      Continue
+                    </Button>
+                  ) : (
+                    // Confirmation Step
+                    <div className="space-y-4">
+                      <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+                        <p className="text-yellow-400 text-sm font-medium mb-2">⚠️ Confirm Withdrawal</p>
+                        <p className="text-gray-300 text-sm">
+                          Please verify the details below. This action cannot be undone.
+                        </p>
+                      </div>
+                      
+                      <div className="p-4 bg-dark-700 rounded-xl space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Amount</span>
+                          <span className="text-white font-medium">${parseFloat(withdrawalData.amount).toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Method</span>
+                          <span className="text-white">{paymentMethods.find(m => m.id === withdrawalData.paymentMethod)?.name}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Fee</span>
+                          <span className="text-yellow-400">{withdrawalData.paymentMethod?.startsWith('crypto') ? '$2.50' : '$0.00'}</span>
+                        </div>
+                        <div className="border-t border-dark-600 pt-2 flex justify-between">
+                          <span className="text-gray-300">You'll Receive</span>
+                          <span className="text-green-400 font-bold">
+                            ${(parseFloat(withdrawalData.amount) - (withdrawalData.paymentMethod?.startsWith('crypto') ? 2.5 : 0)).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <Button
+                          variant="ghost"
+                          className="flex-1"
+                          onClick={() => setShowConfirmation(false)}
+                        >
+                          Back
+                        </Button>
+                        <Button
+                          className="flex-1"
+                          isLoading={isLoading}
+                          onClick={() => {
+                            handleWithdrawal();
+                            setShowConfirmation(false);
+                          }}
+                        >
+                          Confirm Withdrawal
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </motion.div>
