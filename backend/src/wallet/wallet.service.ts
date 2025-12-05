@@ -232,6 +232,20 @@ export class WalletService {
         network: 'ERC-20',
         note: 'Send only USDC to this address.',
       },
+      [PaymentMethod.CRYPTO_SOL]: {
+        type: 'crypto',
+        currency: 'Solana',
+        address: depositAddress,
+        network: 'Solana Network',
+        note: 'Send only SOL to this address. Fast confirmations.',
+      },
+      [PaymentMethod.CRYPTO_BNB]: {
+        type: 'crypto',
+        currency: 'BNB',
+        address: depositAddress,
+        network: 'BNB Smart Chain (BEP-20)',
+        note: 'Send only BNB to this address via BSC network.',
+      },
       [PaymentMethod.BANK_TRANSFER]: {
         type: 'bank',
         bankName: 'Varlixo International Bank',
@@ -261,19 +275,17 @@ export class WalletService {
 
   /**
    * Get deposit address from environment variables
-   * Configure these in your .env file:
-   * WALLET_BTC=your_btc_address
-   * WALLET_ETH=your_eth_address
-   * WALLET_USDT=your_usdt_address (TRC20)
-   * WALLET_USDC=your_usdc_address
+   * Configure these in your .env file or use defaults below
    */
   private generateDepositAddress(paymentMethod: PaymentMethod): string {
-    // Use configured wallet addresses from environment variables
+    // Wallet addresses for deposits - configured with actual addresses
     const walletAddresses: Record<string, string> = {
-      crypto_btc: this.configService.get<string>('WALLET_BTC') || 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-      crypto_eth: this.configService.get<string>('WALLET_ETH') || '0x742d35Cc6634C0532925a3b844Bc9e7595f5bC80',
-      crypto_usdt: this.configService.get<string>('WALLET_USDT') || 'TN2KxXGF47Rs3PAYsbcHHLJVnCbH1K7XwH',
-      crypto_usdc: this.configService.get<string>('WALLET_USDC') || '0x742d35Cc6634C0532925a3b844Bc9e7595f5bC80',
+      crypto_btc: this.configService.get<string>('WALLET_BTC') || 'bc1qupec85trsdtlctyc5ulxkfqav0zrxsmj0459cp',
+      crypto_eth: this.configService.get<string>('WALLET_ETH') || '0xf533162a05833043C2bEAa633e019e4D968D14B8',
+      crypto_usdt: this.configService.get<string>('WALLET_USDT') || 'TZJnNEXp8XRALRSw4TdtPqoNLHWz4wH8sY',
+      crypto_usdc: this.configService.get<string>('WALLET_USDC') || '0xf533162a05833043C2bEAa633e019e4D968D14B8',
+      crypto_sol: this.configService.get<string>('WALLET_SOL') || 'HvgJk8jMr8Ay5Maxn9mPDig1XTRjkYVa3Ynj5uaPpTCo',
+      crypto_bnb: this.configService.get<string>('WALLET_BNB') || '0xf533162a05833043C2bEAa633e019e4D968D14B8',
     };
     return walletAddresses[paymentMethod] || '';
   }
