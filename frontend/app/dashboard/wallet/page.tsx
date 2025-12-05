@@ -2,7 +2,7 @@
 
 /**
  * VARLIXO - WALLET PAGE
- * Main wallet overview with navigation to deposit/withdraw pages
+ * Main wallet with navigation to separate deposit/withdraw pages
  */
 
 import { useEffect, useState } from 'react';
