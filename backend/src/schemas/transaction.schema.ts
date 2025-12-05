@@ -34,11 +34,37 @@ export enum TransactionStatus {
 
 // Payment methods
 export enum PaymentMethod {
-  BANK_TRANSFER = 'bank_transfer',
+  // Crypto
   CRYPTO_BTC = 'crypto_btc',
   CRYPTO_ETH = 'crypto_eth',
   CRYPTO_USDT = 'crypto_usdt',
   CRYPTO_USDC = 'crypto_usdc',
+  CRYPTO_BNB = 'crypto_bnb',
+  CRYPTO_SOL = 'crypto_sol',
+  
+  // Gift Cards
+  GIFTCARD_APPLE = 'giftcard_apple',
+  GIFTCARD_GOOGLE = 'giftcard_google',
+  GIFTCARD_AMAZON = 'giftcard_amazon',
+  GIFTCARD_STEAM = 'giftcard_steam',
+  GIFTCARD_XBOX = 'giftcard_xbox',
+  GIFTCARD_PLAYSTATION = 'giftcard_playstation',
+  GIFTCARD_ROBLOX = 'giftcard_roblox',
+  GIFTCARD_SPOTIFY = 'giftcard_spotify',
+  GIFTCARD_NETFLIX = 'giftcard_netflix',
+  GIFTCARD_ITUNES = 'giftcard_itunes',
+  GIFTCARD_EBAY = 'giftcard_ebay',
+  GIFTCARD_WALMART = 'giftcard_walmart',
+  GIFTCARD_TARGET = 'giftcard_target',
+  GIFTCARD_VISA = 'giftcard_visa',
+  GIFTCARD_MASTERCARD = 'giftcard_mastercard',
+  GIFTCARD_RAZER = 'giftcard_razer',
+  
+  // Bank
+  BANK_TRANSFER = 'bank_transfer',
+  BANK_WIRE = 'bank_wire',
+  
+  // Others
   PAYPAL = 'paypal',
   CARD = 'card',
   INTERNAL = 'internal',

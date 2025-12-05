@@ -132,27 +132,34 @@ export const marketAPI = {
   getHistory: (id: string, days?: number) => api.get(`/market/history/${id}`, { params: { days } }),
   convert: (from: string, to: string, amount: number) =>
     api.get('/market/convert', { params: { from, to, amount } }),
+  getLiveCryptoPrices: (ids: string, currencies: string) =>
+    axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=${currencies}`),
 };
 
 export const adminAPI = {
   getDashboard: () => api.get('/admin/dashboard'),
   getUsers: (params?: any) => api.get('/admin/users', { params }),
   getUserDetails: (id: string) => api.get(`/admin/users/${id}`),
-  updateUserStatus: (id: string, data: any) => api.put(`/admin/users/${id}/status`, data),
-  adjustBalance: (id: string, data: any) => api.post(`/admin/users/${id}/balance`, data),
+  updateUserStatus: (id: string, status: string) => api.put(`/admin/users/${id}/status`, { status }),
+  adjustUserBalance: (id: string, data: any) => api.post(`/admin/users/${id}/balance`, data),
+  verifyUserKyc: (id: string) => api.post(`/admin/users/${id}/verify-kyc`),
+  sendUserEmail: (id: string, data: any) => api.post(`/admin/users/${id}/email`, data),
+  deleteUser: (id: string) => api.delete(`/admin/users/${id}`),
   getDeposits: (params?: any) => api.get('/admin/deposits', { params }),
   approveDeposit: (id: string, data?: any) => api.post(`/admin/deposits/${id}/approve`, data),
   rejectDeposit: (id: string, data: any) => api.post(`/admin/deposits/${id}/reject`, data),
   getWithdrawals: (params?: any) => api.get('/admin/withdrawals', { params }),
   approveWithdrawal: (id: string, data?: any) => api.post(`/admin/withdrawals/${id}/approve`, data),
   rejectWithdrawal: (id: string, data: any) => api.post(`/admin/withdrawals/${id}/reject`, data),
-  getPendingKyc: (params?: any) => api.get('/kyc/admin/pending', { params }),
-  reviewKyc: (data: any) => api.post('/kyc/admin/review', data),
-  getPlans: (params?: any) => api.get('/investments/admin/plans', { params }),
-  createPlan: (data: any) => api.post('/investments/admin/plans', data),
-  updatePlan: (id: string, data: any) => api.put(`/investments/admin/plans/${id}`, data),
-  deletePlan: (id: string) => api.delete(`/investments/admin/plans/${id}`),
+  getPendingKyc: (params?: any) => api.get('/admin/kyc/pending', { params }),
+  approveKyc: (id: string, data?: any) => api.post(`/admin/kyc/${id}/approve`, data),
+  rejectKyc: (id: string, data: any) => api.post(`/admin/kyc/${id}/reject`, data),
+  getPlans: (params?: any) => api.get('/admin/plans', { params }),
+  createPlan: (data: any) => api.post('/admin/plans', data),
+  updatePlan: (id: string, data: any) => api.put(`/admin/plans/${id}`, data),
+  deletePlan: (id: string) => api.delete(`/admin/plans/${id}`),
   getLogs: (params?: any) => api.get('/admin/logs', { params }),
+  getStats: () => api.get('/admin/stats'),
 };
 
 export default api;
