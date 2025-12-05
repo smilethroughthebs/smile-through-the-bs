@@ -63,7 +63,7 @@ export default function ReferralsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const referralCode = user?.referralCode || 'VARLIXO123';
-  const referralLink = `https://varlixo.com/register?ref=${referralCode}`;
+  const referralLink = `https://varlixo.vercel.app/auth/register?ref=${referralCode}`;
 
   useEffect(() => {
     fetchReferralData();
