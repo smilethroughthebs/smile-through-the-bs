@@ -4,7 +4,7 @@
  * ==============================================
  * VARLIXO - WALLET PAGE
  * ==============================================
- * Beautiful wallet management with multiple payment options
+ * Complete wallet management with crypto, gift cards & bank transfers
  */
 
 import { useEffect, useState } from 'react';
@@ -23,17 +23,11 @@ import {
   CreditCard,
   Building2,
   Gift,
-  Gamepad2,
-  Apple,
-  Music,
-  ShoppingBag,
   Sparkles,
   TrendingUp,
   AlertCircle,
   Info,
   QrCode,
-  Upload,
-  Image as ImageIcon,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Card, CardHeader, CardTitle } from '@/app/components/ui/Card';
@@ -42,16 +36,6 @@ import Input from '@/app/components/ui/Input';
 import { useAuthStore } from '@/app/lib/store';
 import { walletAPI } from '@/app/lib/api';
 
-// Animation variants - completely static to prevent any shaking
-const fadeInUp = {
-  hidden: { opacity: 1 },
-  visible: { opacity: 1 },
-};
-
-const stagger = {
-  visible: {},
-};
-
 // Payment method categories
 const paymentCategories = [
   { id: 'crypto', name: 'Cryptocurrency', icon: Sparkles },
@@ -59,7 +43,7 @@ const paymentCategories = [
   { id: 'bank', name: 'Bank Transfer', icon: Building2 },
 ];
 
-// All payment methods
+// All payment methods with details
 const allPaymentMethods = [
   // Crypto
   { id: 'crypto_btc', name: 'Bitcoin', icon: '₿', category: 'crypto', color: 'from-orange-500 to-yellow-500', minDeposit: 50 },
@@ -98,23 +82,28 @@ const withdrawalMethods = allPaymentMethods.filter(m => m.category === 'crypto' 
 export default function WalletPage() {
   const searchParams = useSearchParams();
   const { wallet } = useAuthStore();
+  
+  // UI State
   const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw'>('deposit');
+  const [showModal, setShowModal] = useState(false);
+  const [step, setStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Transaction data
   const [deposits, setDeposits] = useState<any[]>([]);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  
+  // Deposit form
   const [selectedCategory, setSelectedCategory] = useState('crypto');
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
   const [depositInstructions, setDepositInstructions] = useState<any>(null);
   const [copiedAddress, setCopiedAddress] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
   const [giftCardCode, setGiftCardCode] = useState('');
   const [giftCardPin, setGiftCardPin] = useState('');
-  const [proofImage, setProofImage] = useState<File | null>(null);
-  const [step, setStep] = useState(1);
-
+  
   // Withdrawal form
+  const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false);
   const [withdrawalData, setWithdrawalData] = useState({
     amount: '',
     paymentMethod: '',
@@ -145,10 +134,52 @@ export default function WalletPage() {
       setWithdrawals(withdrawalsRes.data.data?.data || []);
     } catch (error) {
       console.error('Failed to fetch transactions:', error);
-      // Empty for new accounts
       setDeposits([]);
       setWithdrawals([]);
     }
+  };
+
+  const resetDepositForm = () => {
+    setStep(1);
+    setSelectedMethod(null);
+    setAmount('');
+    setDepositInstructions(null);
+    setGiftCardCode('');
+    setGiftCardPin('');
+    setIsLoading(false);
+  };
+
+  const resetWithdrawalForm = () => {
+    setShowWithdrawConfirm(false);
+    setIsLoading(false);
+    setWithdrawalData({
+      amount: '',
+      paymentMethod: '',
+      walletAddress: '',
+      bankName: '',
+      accountNumber: '',
+      accountName: '',
+      routingNumber: '',
+      swiftCode: '',
+    });
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    resetDepositForm();
+    resetWithdrawalForm();
+  };
+
+  const openDepositModal = () => {
+    resetDepositForm();
+    setActiveTab('deposit');
+    setShowModal(true);
+  };
+
+  const openWithdrawModal = () => {
+    resetWithdrawalForm();
+    setActiveTab('withdraw');
+    setShowModal(true);
   };
 
   const handleDeposit = async () => {
@@ -163,6 +194,12 @@ export default function WalletPage() {
       return;
     }
 
+    // Validate gift card details
+    if (selectedMethod?.startsWith('giftcard_') && !giftCardCode) {
+      toast.error('Please enter the gift card code');
+      return;
+    }
+
     setIsLoading(true);
     try {
       const depositData: any = {
@@ -170,13 +207,7 @@ export default function WalletPage() {
         paymentMethod: selectedMethod,
       };
 
-      // Add gift card details if applicable
       if (selectedMethod?.startsWith('giftcard_')) {
-        if (!giftCardCode) {
-          toast.error('Please enter the gift card code');
-          setIsLoading(false);
-          return;
-        }
         depositData.giftCardCode = giftCardCode;
         depositData.giftCardPin = giftCardPin;
       }
@@ -221,7 +252,7 @@ export default function WalletPage() {
         swiftCode: withdrawalData.swiftCode,
       });
 
-      toast.success('Withdrawal request submitted successfully!');
+      toast.success('Withdrawal request submitted!');
       closeModal();
       fetchTransactions();
     } catch (error: any) {
@@ -234,67 +265,33 @@ export default function WalletPage() {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedAddress(true);
-    toast.success('Address copied!');
+    toast.success('Copied to clipboard!');
     setTimeout(() => setCopiedAddress(false), 2000);
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setStep(1);
-    setSelectedMethod(null);
-    setAmount('');
-    setDepositInstructions(null);
-    setGiftCardCode('');
-    setGiftCardPin('');
-    setProofImage(null);
-    setShowConfirmation(false);
-    setIsLoading(false); // Reset loading state
-    setWithdrawalData({
-      amount: '',
-      paymentMethod: '',
-      walletAddress: '',
-      bankName: '',
-      accountNumber: '',
-      accountName: '',
-      routingNumber: '',
-      swiftCode: '',
-    });
-  };
-
-  // Reset loading when modal opens
-  const openDepositModal = () => {
-    setActiveTab('deposit');
-    setShowModal(true);
-    setStep(1);
-    setIsLoading(false);
-    setSelectedMethod(null);
-    setAmount('');
-    setDepositInstructions(null);
-  };
-
   const getStatusBadge = (status: string) => {
-    const configs: Record<string, { bg: string; text: string; icon: any }> = {
-      pending: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', icon: Clock },
-      processing: { bg: 'bg-blue-500/20', text: 'text-blue-400', icon: Clock },
-      completed: { bg: 'bg-green-500/20', text: 'text-green-400', icon: CheckCircle },
-      approved: { bg: 'bg-green-500/20', text: 'text-green-400', icon: CheckCircle },
-      failed: { bg: 'bg-red-500/20', text: 'text-red-400', icon: XCircle },
-      rejected: { bg: 'bg-red-500/20', text: 'text-red-400', icon: XCircle },
-      cancelled: { bg: 'bg-gray-500/20', text: 'text-gray-400', icon: XCircle },
+    const styles: Record<string, { bg: string; text: string; Icon: any }> = {
+      pending: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', Icon: Clock },
+      processing: { bg: 'bg-blue-500/20', text: 'text-blue-400', Icon: Clock },
+      completed: { bg: 'bg-green-500/20', text: 'text-green-400', Icon: CheckCircle },
+      approved: { bg: 'bg-green-500/20', text: 'text-green-400', Icon: CheckCircle },
+      failed: { bg: 'bg-red-500/20', text: 'text-red-400', Icon: XCircle },
+      rejected: { bg: 'bg-red-500/20', text: 'text-red-400', Icon: XCircle },
+      cancelled: { bg: 'bg-gray-500/20', text: 'text-gray-400', Icon: XCircle },
     };
-    const config = configs[status] || configs.pending;
-    const Icon = config.icon;
-    
+    const style = styles[status] || styles.pending;
     return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
-        <Icon size={12} />
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}>
+        <style.Icon size={12} />
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     );
   };
 
+  // Computed values
   const filteredPaymentMethods = allPaymentMethods.filter(m => m.category === selectedCategory);
   const selectedMethodData = allPaymentMethods.find(m => m.id === selectedMethod);
+  const quickDepositMethods = allPaymentMethods.filter(m => m.popular || m.category === 'crypto').slice(0, 6);
 
   const getWithdrawalFee = () => {
     if (withdrawalData.paymentMethod?.startsWith('crypto_')) return 2.50;
@@ -310,20 +307,15 @@ export default function WalletPage() {
   };
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={stagger}
-      className="space-y-8"
-    >
+    <div className="space-y-8">
       {/* Header */}
-      <motion.div variants={fadeInUp}>
+      <div>
         <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Wallet</h1>
         <p className="text-gray-400">Manage your funds, deposits, and withdrawals</p>
-      </motion.div>
+      </div>
 
       {/* Balance Cards */}
-      <motion.div variants={fadeInUp} className="grid md:grid-cols-4 gap-4 lg:gap-6">
+      <div className="grid md:grid-cols-4 gap-4 lg:gap-6">
         <Card className="bg-gradient-to-br from-primary-500/20 to-primary-600/5 border-primary-500/20 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
           <div className="relative">
@@ -382,10 +374,10 @@ export default function WalletPage() {
             </div>
           </div>
         </Card>
-      </motion.div>
+      </div>
 
       {/* Action Buttons */}
-      <motion.div variants={fadeInUp} className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4">
         <Button
           size="lg"
           className="flex-1 sm:flex-none min-w-[160px]"
@@ -399,53 +391,46 @@ export default function WalletPage() {
           size="lg"
           className="flex-1 sm:flex-none min-w-[160px]"
           leftIcon={<ArrowUpRight size={20} />}
-          onClick={() => {
-            setActiveTab('withdraw');
-            setShowModal(true);
-            setStep(1);
-          }}
+          onClick={openWithdrawModal}
         >
           Withdraw
         </Button>
-      </motion.div>
+      </div>
 
       {/* Quick Deposit Options */}
-      <motion.div variants={fadeInUp}>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Gift size={20} className="text-primary-500" />
-              Quick Deposit - Popular Methods
-            </CardTitle>
-          </CardHeader>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {allPaymentMethods.filter(m => m.popular || m.category === 'crypto').slice(0, 6).map((method) => (
-              <button
-                key={method.id}
-                onClick={() => {
-                  setActiveTab('deposit');
-                  setSelectedCategory(method.category);
-                  setSelectedMethod(method.id);
-                  setShowModal(true);
-                  setStep(2);
-                  setIsLoading(false);
-                  setAmount('');
-                }}
-                className="group p-4 rounded-xl border border-dark-600 bg-dark-800/50 hover:border-primary-500/50 hover:bg-primary-500/5 transition-all text-center"
-              >
-                <div className={`w-12 h-12 mx-auto rounded-xl bg-gradient-to-br ${method.color} flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform`}>
-                  {method.icon}
-                </div>
-                <p className="text-sm font-medium text-white truncate">{method.name}</p>
-                <p className="text-xs text-gray-500">Min ${method.minDeposit}</p>
-              </button>
-            ))}
-          </div>
-        </Card>
-      </motion.div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Gift size={20} className="text-primary-500" />
+            Quick Deposit - Popular Methods
+          </CardTitle>
+        </CardHeader>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          {quickDepositMethods.map((method) => (
+            <button
+              key={method.id}
+              onClick={() => {
+                resetDepositForm();
+                setActiveTab('deposit');
+                setSelectedCategory(method.category);
+                setSelectedMethod(method.id);
+                setShowModal(true);
+                setStep(2);
+              }}
+              className="group p-4 rounded-xl border border-dark-600 bg-dark-800/50 hover:border-primary-500/50 hover:bg-primary-500/5 transition-all text-center"
+            >
+              <div className={`w-12 h-12 mx-auto rounded-xl bg-gradient-to-br ${method.color} flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform`}>
+                {method.icon}
+              </div>
+              <p className="text-sm font-medium text-white truncate">{method.name}</p>
+              <p className="text-xs text-gray-500">Min ${method.minDeposit}</p>
+            </button>
+          ))}
+        </div>
+      </Card>
 
       {/* Transaction History */}
-      <motion.div variants={fadeInUp} className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-6">
         {/* Recent Deposits */}
         <Card>
           <CardHeader>
@@ -489,12 +474,7 @@ export default function WalletPage() {
               </div>
               <p className="text-gray-400 font-medium">No deposits yet</p>
               <p className="text-gray-500 text-sm mt-1">Make your first deposit to get started</p>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mt-4"
-                onClick={openDepositModal}
-              >
+              <Button variant="ghost" size="sm" className="mt-4" onClick={openDepositModal}>
                 Make a Deposit
               </Button>
             </div>
@@ -547,7 +527,7 @@ export default function WalletPage() {
             </div>
           )}
         </Card>
-      </motion.div>
+      </div>
 
       {/* Deposit/Withdraw Modal */}
       <AnimatePresence>
@@ -556,14 +536,15 @@ export default function WalletPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={closeModal}
           >
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
               className="bg-dark-800 border border-dark-600 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
@@ -602,6 +583,7 @@ export default function WalletPage() {
               <div className="p-6 overflow-y-auto max-h-[calc(90vh-100px)]">
                 {activeTab === 'deposit' ? (
                   <>
+                    {/* Step 1: Select Payment Method */}
                     {step === 1 && (
                       <div className="space-y-6">
                         {/* Category Tabs */}
@@ -649,9 +631,10 @@ export default function WalletPage() {
                       </div>
                     )}
 
+                    {/* Step 2: Enter Amount */}
                     {step === 2 && selectedMethodData && (
                       <div className="space-y-6">
-                        {/* Selected Method */}
+                        {/* Selected Method Display */}
                         <div className="flex items-center gap-4 p-4 bg-dark-700/50 rounded-xl border border-dark-600">
                           <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${selectedMethodData.color} flex items-center justify-center text-3xl`}>
                             {selectedMethodData.icon}
@@ -661,7 +644,10 @@ export default function WalletPage() {
                             <p className="text-gray-400 text-sm">Minimum deposit: ${selectedMethodData.minDeposit}</p>
                           </div>
                           <button
-                            onClick={() => setStep(1)}
+                            onClick={() => {
+                              setStep(1);
+                              setSelectedMethod(null);
+                            }}
                             className="text-primary-400 hover:text-primary-300 text-sm"
                           >
                             Change
@@ -719,12 +705,12 @@ export default function WalletPage() {
                           </div>
                         )}
 
+                        {/* Action Buttons */}
                         <div className="flex gap-3">
                           <Button 
                             variant="ghost" 
                             onClick={() => {
                               setStep(1);
-                              setIsLoading(false);
                               setAmount('');
                               setSelectedMethod(null);
                             }} 
@@ -735,18 +721,19 @@ export default function WalletPage() {
                           <Button
                             className="flex-1"
                             isLoading={isLoading}
+                            disabled={isLoading || !amount}
                             onClick={handleDeposit}
-                            disabled={isLoading}
                           >
-                            {isLoading ? 'Processing...' : 'Continue'}
+                            Continue
                           </Button>
                         </div>
                       </div>
                     )}
 
+                    {/* Step 3: Payment Instructions */}
                     {step === 3 && depositInstructions && (
                       <div className="space-y-6">
-                        {/* Success Message */}
+                        {/* Success Header */}
                         <div className="text-center">
                           <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
                             <CheckCircle className="text-green-500" size={32} />
@@ -763,7 +750,7 @@ export default function WalletPage() {
                           </p>
                         </div>
 
-                        {/* Payment Instructions */}
+                        {/* Crypto Payment Instructions */}
                         {depositInstructions.instructions?.type === 'crypto' && (
                           <div className="space-y-4">
                             <div>
@@ -783,28 +770,58 @@ export default function WalletPage() {
                               </div>
                             </div>
                             
-                            {/* QR Code Placeholder */}
+                            {/* QR Code */}
                             <div className="flex justify-center">
-                              <div className="w-48 h-48 bg-white rounded-xl flex items-center justify-center">
-                                <QrCode size={120} className="text-dark-900" />
+                              <div className="w-48 h-48 bg-white rounded-xl flex items-center justify-center p-4">
+                                <QrCode size={140} className="text-dark-900" />
                               </div>
                             </div>
 
                             <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
-                              <p className="text-yellow-400 text-sm">
-                                <AlertCircle size={16} className="inline mr-2" />
-                                {depositInstructions.instructions.note}
+                              <p className="text-yellow-400 text-sm flex items-start gap-2">
+                                <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
+                                <span>{depositInstructions.instructions.note}</span>
                               </p>
                             </div>
                           </div>
                         )}
 
+                        {/* Gift Card Confirmation */}
                         {depositInstructions.instructions?.type === 'giftcard' && (
                           <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-xl">
-                            <p className="text-green-400 text-sm">
-                              <CheckCircle size={16} className="inline mr-2" />
-                              Your gift card is being verified. This usually takes 5-30 minutes.
+                            <p className="text-green-400 text-sm flex items-start gap-2">
+                              <CheckCircle size={16} className="mt-0.5 flex-shrink-0" />
+                              <span>Your gift card is being verified. This usually takes 5-30 minutes.</span>
                             </p>
+                          </div>
+                        )}
+
+                        {/* Bank Transfer Instructions */}
+                        {depositInstructions.instructions?.type === 'bank' && (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div className="p-3 bg-dark-700 rounded-lg">
+                                <p className="text-gray-500 mb-1">Bank Name</p>
+                                <p className="text-white font-medium">{depositInstructions.instructions.bankName}</p>
+                              </div>
+                              <div className="p-3 bg-dark-700 rounded-lg">
+                                <p className="text-gray-500 mb-1">Account Number</p>
+                                <p className="text-white font-medium">{depositInstructions.instructions.accountNumber}</p>
+                              </div>
+                              <div className="p-3 bg-dark-700 rounded-lg">
+                                <p className="text-gray-500 mb-1">Account Name</p>
+                                <p className="text-white font-medium">{depositInstructions.instructions.accountName}</p>
+                              </div>
+                              <div className="p-3 bg-dark-700 rounded-lg">
+                                <p className="text-gray-500 mb-1">Reference</p>
+                                <p className="text-white font-medium">{depositInstructions.instructions.reference || 'N/A'}</p>
+                              </div>
+                            </div>
+                            <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+                              <p className="text-yellow-400 text-sm">
+                                {depositInstructions.instructions.note}
+                              </p>
+                            </div>
                           </div>
                         )}
 
@@ -817,7 +834,7 @@ export default function WalletPage() {
                 ) : (
                   /* Withdrawal Form */
                   <div className="space-y-6">
-                    {!showConfirmation ? (
+                    {!showWithdrawConfirm ? (
                       <>
                         {/* Balance Display */}
                         <div className="p-4 bg-gradient-to-r from-primary-500/10 to-purple-500/10 border border-primary-500/20 rounded-xl">
@@ -844,13 +861,13 @@ export default function WalletPage() {
                           </div>
                         </div>
 
-                        {/* Withdrawal Method */}
+                        {/* Withdrawal Method Selection */}
                         <div>
                           <label className="block text-sm font-medium text-gray-300 mb-3">
                             Withdrawal Method
                           </label>
                           <div className="grid grid-cols-2 gap-3">
-                            {withdrawalMethods.slice(0, 6).map((method) => (
+                            {withdrawalMethods.slice(0, 8).map((method) => (
                               <button
                                 key={method.id}
                                 onClick={() => setWithdrawalData({ ...withdrawalData, paymentMethod: method.id })}
@@ -963,14 +980,14 @@ export default function WalletPage() {
                               toast.error('Please fill in all bank details');
                               return;
                             }
-                            setShowConfirmation(true);
+                            setShowWithdrawConfirm(true);
                           }}
                         >
                           Continue
                         </Button>
                       </>
                     ) : (
-                      /* Confirmation Step */
+                      /* Withdrawal Confirmation */
                       <div className="space-y-6">
                         <div className="text-center">
                           <div className="w-16 h-16 rounded-full bg-yellow-500/20 flex items-center justify-center mx-auto mb-4">
@@ -1008,12 +1025,13 @@ export default function WalletPage() {
                         </div>
 
                         <div className="flex gap-3">
-                          <Button variant="ghost" className="flex-1" onClick={() => setShowConfirmation(false)}>
+                          <Button variant="ghost" className="flex-1" onClick={() => setShowWithdrawConfirm(false)}>
                             Back
                           </Button>
                           <Button
                             className="flex-1"
                             isLoading={isLoading}
+                            disabled={isLoading}
                             onClick={handleWithdrawal}
                           >
                             Confirm Withdrawal
@@ -1028,6 +1046,6 @@ export default function WalletPage() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }
