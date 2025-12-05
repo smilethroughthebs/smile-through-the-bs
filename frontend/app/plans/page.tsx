@@ -5,11 +5,12 @@
  * VARLIXO - INVESTMENT PLANS PAGE
  * ==============================================
  * Public page showing all available investment plans
+ * with profit calculator and comparison table
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   TrendingUp,
   Clock,
@@ -21,6 +22,17 @@ import {
   Zap,
   Crown,
   Gem,
+  Calculator,
+  ChevronDown,
+  Info,
+  Users,
+  Award,
+  Target,
+  Sparkles,
+  BadgeCheck,
+  X,
+  ArrowUpRight,
+  HelpCircle,
 } from 'lucide-react';
 import Button from '@/app/components/ui/Button';
 import { Card } from '@/app/components/ui/Card';
@@ -29,12 +41,17 @@ import Footer from '@/app/components/layout/Footer';
 import { investmentAPI } from '@/app/lib/api';
 
 const fadeInUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: 'easeOut' } },
 };
 
 const stagger = {
-  visible: { transition: { staggerChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.15, delayChildren: 0.1 } },
 };
 
 // Default plans if API fails
@@ -45,44 +62,50 @@ const defaultPlans = [
     slug: 'starter',
     description: 'Perfect for beginners looking to start their investment journey',
     minAmount: 100,
-    maxAmount: 999,
+    maxAmount: 4999,
     dailyROI: 1.5,
     duration: 30,
     totalROI: 45,
-    features: ['Daily returns', '24/7 Support', 'Instant deposits', 'Auto-compounding'],
+    features: ['Daily profit distribution', 'Principal returned', '24/7 Support', 'Instant deposits'],
     isPopular: false,
     icon: 'Zap',
     color: 'from-blue-500 to-blue-600',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-500/30',
   },
   {
     _id: '2',
     name: 'Professional',
     slug: 'professional',
-    description: 'For serious investors seeking higher returns',
-    minAmount: 1000,
-    maxAmount: 9999,
+    description: 'For serious investors seeking higher returns with more benefits',
+    minAmount: 5000,
+    maxAmount: 24999,
     dailyROI: 2.5,
     duration: 45,
     totalROI: 112.5,
-    features: ['Higher daily returns', 'Priority support', 'Instant withdrawals', 'Dedicated manager', 'Weekly reports'],
+    features: ['Higher daily returns', 'Principal returned', 'Priority support', 'Instant withdrawals', 'Compound option', 'Weekly reports'],
     isPopular: true,
     icon: 'Crown',
-    color: 'from-primary-500 to-primary-600',
+    color: 'from-primary-500 to-emerald-500',
+    bgColor: 'bg-primary-500/10',
+    borderColor: 'border-primary-500/30',
   },
   {
     _id: '3',
     name: 'Elite',
     slug: 'elite',
-    description: 'Premium plan for high-net-worth investors',
-    minAmount: 10000,
+    description: 'Premium plan for high-net-worth investors seeking maximum returns',
+    minAmount: 25000,
     maxAmount: 100000,
-    dailyROI: 3.5,
+    dailyROI: 3.0,
     duration: 60,
-    totalROI: 210,
-    features: ['Maximum returns', 'VIP support', 'Instant everything', 'Personal advisor', 'Daily reports', 'Exclusive events'],
+    totalROI: 180,
+    features: ['Maximum returns', 'Principal returned', 'VIP concierge', 'Instant everything', 'Personal advisor', 'Daily reports', 'Exclusive events', 'Early withdrawal'],
     isPopular: false,
     icon: 'Gem',
-    color: 'from-purple-500 to-purple-600',
+    color: 'from-purple-500 to-pink-500',
+    bgColor: 'bg-purple-500/10',
+    borderColor: 'border-purple-500/30',
   },
 ];
 
@@ -93,9 +116,37 @@ const iconMap: { [key: string]: any } = {
   Star: Star,
 };
 
+// FAQ data
+const faqs = [
+  {
+    question: 'How do the daily returns work?',
+    answer: 'Once you activate an investment, you\'ll receive daily returns credited directly to your wallet. The returns are calculated based on your investment amount and plan ROI percentage.',
+  },
+  {
+    question: 'When do I get my principal back?',
+    answer: 'Your principal investment is returned at the end of the plan duration along with your final day\'s profit. For example, if you invest $1,000 in a 30-day plan, you get your $1,000 back on day 30.',
+  },
+  {
+    question: 'Can I withdraw my daily profits?',
+    answer: 'Yes! Daily profits are credited to your available balance and can be withdrawn at any time, subject to minimum withdrawal amounts.',
+  },
+  {
+    question: 'What happens if I want to exit early?',
+    answer: 'Elite plan holders can request early withdrawal with a small fee. Starter and Professional plans run for their full duration to maximize returns.',
+  },
+  {
+    question: 'Is there a limit on investments?',
+    answer: 'Each plan has minimum and maximum investment limits shown on the cards. You can have multiple active investments across different plans.',
+  },
+];
+
 export default function PlansPage() {
   const [plans, setPlans] = useState<any[]>(defaultPlans);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCalculator, setShowCalculator] = useState(false);
+  const [calcAmount, setCalcAmount] = useState('5000');
+  const [selectedPlan, setSelectedPlan] = useState(defaultPlans[1]);
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   useEffect(() => {
     fetchPlans();
@@ -120,33 +171,82 @@ export default function PlansPage() {
     return Icon;
   };
 
+  // Calculator results
+  const calcResults = useMemo(() => {
+    const amount = parseFloat(calcAmount) || 0;
+    const dailyProfit = (amount * selectedPlan.dailyROI) / 100;
+    const weeklyProfit = dailyProfit * 7;
+    const totalProfit = dailyProfit * selectedPlan.duration;
+    const totalReturn = amount + totalProfit;
+    return { dailyProfit, weeklyProfit, totalProfit, totalReturn };
+  }, [calcAmount, selectedPlan]);
+
   return (
     <div className="min-h-screen bg-dark-900">
       <Navbar />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 relative overflow-hidden">
+      <section className="pt-28 pb-16 px-4 relative overflow-hidden">
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-[120px]" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px]" />
+          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary-500/10 rounded-full blur-[150px]" />
+          <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[150px]" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
         </div>
 
         <div className="max-w-7xl mx-auto relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-3xl mx-auto mb-16"
+            className="text-center max-w-3xl mx-auto mb-12"
           >
-            <span className="inline-block px-4 py-2 bg-primary-500/10 text-primary-400 rounded-full text-sm font-medium mb-6">
+            <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500/10 text-primary-400 rounded-full text-sm font-medium mb-6 border border-primary-500/20">
+              <Sparkles size={16} />
               Investment Plans
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Choose Your <span className="text-primary-500">Investment Plan</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+              Grow Your Wealth with{' '}
+              <span className="bg-gradient-to-r from-primary-400 to-emerald-400 bg-clip-text text-transparent">
+                Smart Investments
+              </span>
             </h1>
-            <p className="text-xl text-gray-400">
-              Select a plan that fits your investment goals. All plans include daily returns,
-              instant deposits, and 24/7 support.
+            <p className="text-xl text-gray-400 mb-8">
+              Choose a plan that matches your goals. Earn daily returns with our secure, transparent platform.
             </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button 
+                size="lg" 
+                onClick={() => setShowCalculator(true)}
+                leftIcon={<Calculator size={20} />}
+              >
+                Calculate Returns
+              </Button>
+              <Link href="#comparison">
+                <Button variant="secondary" size="lg">
+                  Compare Plans
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+
+          {/* Trust Badges */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex flex-wrap items-center justify-center gap-6 mb-16 text-sm text-gray-500"
+          >
+            <span className="flex items-center gap-2 px-4 py-2 bg-dark-800/50 rounded-full">
+              <Shield size={16} className="text-primary-500" />
+              Secured & Insured
+            </span>
+            <span className="flex items-center gap-2 px-4 py-2 bg-dark-800/50 rounded-full">
+              <Users size={16} className="text-primary-500" />
+              50,000+ Investors
+            </span>
+            <span className="flex items-center gap-2 px-4 py-2 bg-dark-800/50 rounded-full">
+              <BadgeCheck size={16} className="text-primary-500" />
+              Daily Payouts
+            </span>
           </motion.div>
 
           {/* Plans Grid */}
@@ -154,7 +254,7 @@ export default function PlansPage() {
             initial="hidden"
             animate="visible"
             variants={stagger}
-            className="grid md:grid-cols-3 gap-8"
+            className="grid md:grid-cols-3 gap-6 lg:gap-8"
           >
             {plans.map((plan, index) => {
               const Icon = getIcon(plan.icon || 'Star');
@@ -165,81 +265,100 @@ export default function PlansPage() {
                   className={`relative ${plan.isPopular ? 'md:-mt-4 md:mb-4' : ''}`}
                 >
                   {plan.isPopular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary-500 text-white text-sm font-medium rounded-full z-10">
-                      Most Popular
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                      <span className="px-4 py-1.5 bg-gradient-to-r from-primary-500 to-emerald-500 text-white text-sm font-bold rounded-full shadow-lg shadow-primary-500/30">
+                        MOST POPULAR
+                      </span>
                     </div>
                   )}
-                  <Card
-                    className={`h-full ${
+                  <motion.div
+                    whileHover={{ y: -5, scale: 1.02 }}
+                    transition={{ type: 'spring', stiffness: 300 }}
+                    className={`h-full rounded-3xl border transition-all duration-300 ${
                       plan.isPopular
-                        ? 'border-primary-500/50 bg-gradient-to-b from-primary-500/10 to-transparent'
-                        : ''
+                        ? 'border-primary-500/50 bg-gradient-to-b from-primary-500/10 via-dark-800/50 to-dark-800/50 shadow-xl shadow-primary-500/10'
+                        : 'border-dark-700 bg-dark-800/50 hover:border-dark-600'
                     }`}
                   >
                     <div className="p-8">
                       {/* Plan Header */}
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${plan.color || 'from-primary-500 to-primary-600'} flex items-center justify-center mb-6`}>
-                        <Icon className="text-white" size={28} />
+                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${plan.color || 'from-primary-500 to-primary-600'} flex items-center justify-center mb-6 shadow-lg`}>
+                        <Icon className="text-white" size={32} />
                       </div>
 
                       <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-                      <p className="text-gray-400 mb-6">{plan.description}</p>
+                      <p className="text-gray-400 text-sm mb-6 min-h-[40px]">{plan.description}</p>
 
                       {/* ROI Display */}
-                      <div className="mb-6">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-4xl font-bold text-white">{plan.dailyROI}%</span>
-                          <span className="text-gray-400">/ day</span>
+                      <div className="mb-6 p-4 rounded-2xl bg-dark-700/50">
+                        <div className="flex items-baseline gap-1 mb-1">
+                          <span className="text-5xl font-bold text-white">{plan.dailyROI}%</span>
+                          <span className="text-gray-400 text-lg">/day</span>
                         </div>
-                        <p className="text-sm text-gray-500 mt-1">
-                          Up to {plan.totalROI}% total return
+                        <p className="text-sm text-primary-400 font-medium">
+                          {plan.totalROI}% total return over {plan.duration} days
                         </p>
                       </div>
 
                       {/* Plan Details */}
-                      <div className="space-y-3 mb-8">
+                      <div className="space-y-3 mb-6 p-4 rounded-xl bg-dark-900/50">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-400">Min Investment</span>
-                          <span className="text-white font-medium">${plan.minAmount.toLocaleString()}</span>
+                          <span className="text-gray-500 flex items-center gap-2">
+                            <DollarSign size={14} />
+                            Min Investment
+                          </span>
+                          <span className="text-white font-semibold">${plan.minAmount.toLocaleString()}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-400">Max Investment</span>
-                          <span className="text-white font-medium">${plan.maxAmount.toLocaleString()}</span>
+                          <span className="text-gray-500 flex items-center gap-2">
+                            <Target size={14} />
+                            Max Investment
+                          </span>
+                          <span className="text-white font-semibold">${plan.maxAmount.toLocaleString()}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-400">Duration</span>
-                          <span className="text-white font-medium">{plan.duration} days</span>
+                          <span className="text-gray-500 flex items-center gap-2">
+                            <Clock size={14} />
+                            Duration
+                          </span>
+                          <span className="text-white font-semibold">{plan.duration} days</span>
                         </div>
                       </div>
 
                       {/* Features */}
-                      <div className="space-y-3 mb-8">
-                        {(plan.features || []).map((feature: string, i: number) => (
+                      <div className="space-y-2.5 mb-8">
+                        {(plan.features || []).slice(0, 5).map((feature: string, i: number) => (
                           <div key={i} className="flex items-center gap-3">
                             <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                              <Check size={12} className="text-green-500" />
+                              <Check size={12} className="text-green-400" />
                             </div>
                             <span className="text-gray-300 text-sm">{feature}</span>
                           </div>
                         ))}
+                        {(plan.features || []).length > 5 && (
+                          <p className="text-xs text-gray-500 ml-8">
+                            +{plan.features.length - 5} more features
+                          </p>
+                        )}
                       </div>
 
                       {/* CTA Button */}
                       <Link href="/auth/register">
                         <Button
-                          className={`w-full ${
+                          className={`w-full group ${
                             plan.isPopular
-                              ? 'bg-gradient-to-r from-primary-500 to-primary-600'
+                              ? 'bg-gradient-to-r from-primary-500 to-emerald-500 hover:from-primary-400 hover:to-emerald-400'
                               : ''
                           }`}
-                          variant={plan.isPopular ? 'primary' : 'outline'}
+                          variant={plan.isPopular ? 'primary' : 'secondary'}
+                          size="lg"
                         >
                           Get Started
-                          <ArrowRight size={18} className="ml-2" />
+                          <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                         </Button>
                       </Link>
                     </div>
-                  </Card>
+                  </motion.div>
                 </motion.div>
               );
             })}
@@ -247,78 +366,473 @@ export default function PlansPage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-4 bg-dark-800/50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-white mb-4">Why Invest With Us?</h2>
+      {/* Profit Calculator Section */}
+      <section className="py-20 px-4 bg-dark-800/30">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <span className="inline-block px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-full text-sm font-medium mb-4">
+              Profit Calculator
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Calculate Your Potential Earnings
+            </h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
-              We provide industry-leading security, returns, and customer service.
+              See exactly how much you could earn with our investment plans
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid md:grid-cols-4 gap-8">
-            {[
-              {
-                icon: Shield,
-                title: 'Bank-Grade Security',
-                description: 'Your investments are protected with enterprise-level security',
-              },
-              {
-                icon: TrendingUp,
-                title: 'Consistent Returns',
-                description: 'Daily returns deposited directly to your account',
-              },
-              {
-                icon: Clock,
-                title: 'Instant Withdrawals',
-                description: 'Access your funds anytime with instant processing',
-              },
-              {
-                icon: DollarSign,
-                title: 'Low Minimums',
-                description: 'Start investing with as little as $100',
-              },
-            ].map((feature, index) => (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="p-8 rounded-3xl bg-dark-800/50 border border-dark-700"
+          >
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Input Side */}
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-3">Select Plan</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {plans.map((plan) => (
+                      <button
+                        key={plan._id}
+                        onClick={() => setSelectedPlan(plan)}
+                        className={`p-3 rounded-xl text-center transition-all ${
+                          selectedPlan._id === plan._id
+                            ? 'bg-primary-500/20 border-primary-500 text-primary-400'
+                            : 'bg-dark-700/50 border-dark-600 text-gray-400 hover:border-dark-500'
+                        } border`}
+                      >
+                        <p className="font-semibold text-sm">{plan.name}</p>
+                        <p className="text-xs opacity-75">{plan.dailyROI}%/day</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-3">Investment Amount</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg">$</span>
+                    <input
+                      type="number"
+                      value={calcAmount}
+                      onChange={(e) => setCalcAmount(e.target.value)}
+                      min={selectedPlan.minAmount}
+                      max={selectedPlan.maxAmount}
+                      className="w-full pl-10 pr-4 py-4 bg-dark-700 border border-dark-600 rounded-xl text-white text-xl font-semibold placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Range: ${selectedPlan.minAmount.toLocaleString()} - ${selectedPlan.maxAmount.toLocaleString()}
+                  </p>
+                </div>
+
+                {/* Quick Amount Buttons */}
+                <div className="flex flex-wrap gap-2">
+                  {[1000, 5000, 10000, 25000, 50000].map((amount) => (
+                    <button
+                      key={amount}
+                      onClick={() => setCalcAmount(amount.toString())}
+                      className="px-4 py-2 rounded-lg bg-dark-700 text-gray-400 hover:bg-dark-600 hover:text-white text-sm transition-colors"
+                    >
+                      ${amount.toLocaleString()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Results Side */}
+              <div className="p-6 rounded-2xl bg-gradient-to-br from-primary-500/10 to-emerald-500/5 border border-primary-500/20">
+                <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                  <Sparkles size={20} className="text-primary-400" />
+                  Projected Returns
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center p-4 rounded-xl bg-dark-800/50">
+                    <span className="text-gray-400">Daily Profit</span>
+                    <span className="text-xl font-bold text-green-400">
+                      +${calcResults.dailyProfit.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center p-4 rounded-xl bg-dark-800/50">
+                    <span className="text-gray-400">Weekly Profit</span>
+                    <span className="text-xl font-bold text-green-400">
+                      +${calcResults.weeklyProfit.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center p-4 rounded-xl bg-dark-800/50">
+                    <span className="text-gray-400">Total Profit ({selectedPlan.duration} days)</span>
+                    <span className="text-xl font-bold text-green-400">
+                      +${calcResults.totalProfit.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center p-4 rounded-xl bg-primary-500/20 border border-primary-500/30">
+                    <span className="text-white font-medium">Total Return</span>
+                    <span className="text-2xl font-bold text-white">
+                      ${calcResults.totalReturn.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+                <Link href="/auth/register" className="block mt-6">
+                  <Button className="w-full" size="lg">
+                    Start Earning Now
+                    <ArrowRight size={18} className="ml-2" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Comparison Table */}
+      <section id="comparison" className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <span className="inline-block px-4 py-2 bg-purple-500/10 text-purple-400 rounded-full text-sm font-medium mb-4">
+              Plan Comparison
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Compare All Plans
+            </h2>
+            <p className="text-gray-400">
+              See all features side by side to make the best choice
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="overflow-x-auto"
+          >
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-dark-700">
+                  <th className="text-left py-4 px-6 text-gray-400 font-medium">Feature</th>
+                  {plans.map((plan) => (
+                    <th key={plan._id} className="text-center py-4 px-6">
+                      <span className={`text-lg font-bold ${plan.isPopular ? 'text-primary-400' : 'text-white'}`}>
+                        {plan.name}
+                      </span>
+                      {plan.isPopular && (
+                        <span className="block text-xs text-primary-400 mt-1">Popular</span>
+                      )}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-dark-700">
+                <tr className="hover:bg-dark-800/30">
+                  <td className="py-4 px-6 text-gray-400">Daily ROI</td>
+                  {plans.map((plan) => (
+                    <td key={plan._id} className="py-4 px-6 text-center text-white font-semibold">
+                      {plan.dailyROI}%
+                    </td>
+                  ))}
+                </tr>
+                <tr className="hover:bg-dark-800/30">
+                  <td className="py-4 px-6 text-gray-400">Total ROI</td>
+                  {plans.map((plan) => (
+                    <td key={plan._id} className="py-4 px-6 text-center text-green-400 font-semibold">
+                      {plan.totalROI}%
+                    </td>
+                  ))}
+                </tr>
+                <tr className="hover:bg-dark-800/30">
+                  <td className="py-4 px-6 text-gray-400">Duration</td>
+                  {plans.map((plan) => (
+                    <td key={plan._id} className="py-4 px-6 text-center text-white">
+                      {plan.duration} days
+                    </td>
+                  ))}
+                </tr>
+                <tr className="hover:bg-dark-800/30">
+                  <td className="py-4 px-6 text-gray-400">Min Investment</td>
+                  {plans.map((plan) => (
+                    <td key={plan._id} className="py-4 px-6 text-center text-white">
+                      ${plan.minAmount.toLocaleString()}
+                    </td>
+                  ))}
+                </tr>
+                <tr className="hover:bg-dark-800/30">
+                  <td className="py-4 px-6 text-gray-400">Max Investment</td>
+                  {plans.map((plan) => (
+                    <td key={plan._id} className="py-4 px-6 text-center text-white">
+                      ${plan.maxAmount.toLocaleString()}
+                    </td>
+                  ))}
+                </tr>
+                <tr className="hover:bg-dark-800/30">
+                  <td className="py-4 px-6 text-gray-400">Principal Returned</td>
+                  {plans.map((plan) => (
+                    <td key={plan._id} className="py-4 px-6 text-center">
+                      <Check size={20} className="text-green-400 mx-auto" />
+                    </td>
+                  ))}
+                </tr>
+                <tr className="hover:bg-dark-800/30">
+                  <td className="py-4 px-6 text-gray-400">Priority Support</td>
+                  {plans.map((plan, i) => (
+                    <td key={plan._id} className="py-4 px-6 text-center">
+                      {i > 0 ? (
+                        <Check size={20} className="text-green-400 mx-auto" />
+                      ) : (
+                        <X size={20} className="text-gray-600 mx-auto" />
+                      )}
+                    </td>
+                  ))}
+                </tr>
+                <tr className="hover:bg-dark-800/30">
+                  <td className="py-4 px-6 text-gray-400">Personal Advisor</td>
+                  {plans.map((plan, i) => (
+                    <td key={plan._id} className="py-4 px-6 text-center">
+                      {i === 2 ? (
+                        <Check size={20} className="text-green-400 mx-auto" />
+                      ) : (
+                        <X size={20} className="text-gray-600 mx-auto" />
+                      )}
+                    </td>
+                  ))}
+                </tr>
+                <tr className="hover:bg-dark-800/30">
+                  <td className="py-4 px-6 text-gray-400">Early Withdrawal</td>
+                  {plans.map((plan, i) => (
+                    <td key={plan._id} className="py-4 px-6 text-center">
+                      {i === 2 ? (
+                        <Check size={20} className="text-green-400 mx-auto" />
+                      ) : (
+                        <X size={20} className="text-gray-600 mx-auto" />
+                      )}
+                    </td>
+                  ))}
+                </tr>
+                <tr>
+                  <td className="py-6 px-6"></td>
+                  {plans.map((plan) => (
+                    <td key={plan._id} className="py-6 px-6 text-center">
+                      <Link href="/auth/register">
+                        <Button variant={plan.isPopular ? 'primary' : 'secondary'} size="sm">
+                          Choose Plan
+                        </Button>
+                      </Link>
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 px-4 bg-dark-800/30">
+        <div className="max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <span className="inline-block px-4 py-2 bg-yellow-500/10 text-yellow-400 rounded-full text-sm font-medium mb-4">
+              FAQ
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-gray-400">
+              Have questions? We've got answers.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="space-y-4"
+          >
+            {faqs.map((faq, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="text-center"
+                className="rounded-2xl border border-dark-700 overflow-hidden"
               >
-                <div className="w-14 h-14 mx-auto bg-dark-700 rounded-2xl flex items-center justify-center mb-4">
-                  <feature.icon className="text-primary-500" size={28} />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-400 text-sm">{feature.description}</p>
+                <button
+                  onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
+                  className="w-full flex items-center justify-between p-6 text-left hover:bg-dark-800/50 transition-colors"
+                >
+                  <span className="font-medium text-white pr-4">{faq.question}</span>
+                  <ChevronDown
+                    size={20}
+                    className={`text-gray-400 transition-transform flex-shrink-0 ${
+                      expandedFaq === index ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+                <AnimatePresence>
+                  {expandedFaq === index && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <p className="px-6 pb-6 text-gray-400 leading-relaxed">
+                        {faq.answer}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to Start Growing Your Wealth?
-          </h2>
-          <p className="text-gray-400 mb-8">
-            Join thousands of investors already earning with Varlixo.
-          </p>
-          <Link href="/auth/register">
-            <Button size="lg">
-              Create Free Account
-              <ArrowRight size={20} className="ml-2" />
-            </Button>
-          </Link>
+      <section className="py-20 px-4 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-500/20 rounded-full blur-[150px]" />
+        </div>
+        <div className="max-w-4xl mx-auto text-center relative">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Sparkles className="w-16 h-16 mx-auto text-primary-500 mb-6" />
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              Ready to Start Growing Your Wealth?
+            </h2>
+            <p className="text-xl text-gray-400 mb-8">
+              Join 50,000+ investors earning daily returns with Varlixo.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/auth/register">
+                <Button size="lg" className="px-10">
+                  Create Free Account
+                  <ArrowRight size={20} className="ml-2" />
+                </Button>
+              </Link>
+              <Link href="/contact">
+                <Button variant="secondary" size="lg" className="px-10">
+                  Contact Sales
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </section>
 
       <Footer />
+
+      {/* Calculator Modal */}
+      <AnimatePresence>
+        {showCalculator && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+            onClick={() => setShowCalculator(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-lg bg-dark-800 rounded-3xl p-8 border border-dark-700"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Calculator size={24} className="text-primary-500" />
+                  Profit Calculator
+                </h3>
+                <button
+                  onClick={() => setShowCalculator(false)}
+                  className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-dark-700"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Select Plan</label>
+                  <select
+                    value={selectedPlan._id}
+                    onChange={(e) => setSelectedPlan(plans.find(p => p._id === e.target.value) || plans[0])}
+                    className="w-full px-4 py-3 bg-dark-700 border border-dark-600 rounded-xl text-white focus:outline-none focus:border-primary-500"
+                  >
+                    {plans.map((plan) => (
+                      <option key={plan._id} value={plan._id}>
+                        {plan.name} - {plan.dailyROI}% daily
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Investment Amount</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                    <input
+                      type="number"
+                      value={calcAmount}
+                      onChange={(e) => setCalcAmount(e.target.value)}
+                      className="w-full pl-8 pr-4 py-3 bg-dark-700 border border-dark-600 rounded-xl text-white focus:outline-none focus:border-primary-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-primary-500/10 border border-primary-500/20">
+                  <h4 className="text-sm font-medium text-primary-400 mb-3">Projected Returns</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs text-gray-500">Daily Profit</p>
+                      <p className="text-lg font-bold text-green-400">+${calcResults.dailyProfit.toFixed(2)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Weekly Profit</p>
+                      <p className="text-lg font-bold text-green-400">+${calcResults.weeklyProfit.toFixed(2)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Total Profit</p>
+                      <p className="text-lg font-bold text-green-400">+${calcResults.totalProfit.toFixed(2)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Total Return</p>
+                      <p className="text-lg font-bold text-white">${calcResults.totalReturn.toFixed(2)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <Link href="/auth/register" className="block">
+                  <Button className="w-full" size="lg">
+                    Start Investing
+                    <ArrowRight size={18} className="ml-2" />
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
-
-
