@@ -42,14 +42,14 @@ import Input from '@/app/components/ui/Input';
 import { useAuthStore } from '@/app/lib/store';
 import { walletAPI } from '@/app/lib/api';
 
-// Animation variants - simplified to prevent shaking
+// Animation variants - completely static to prevent any shaking
 const fadeInUp = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.3 } },
+  hidden: { opacity: 1 },
+  visible: { opacity: 1 },
 };
 
 const stagger = {
-  visible: { transition: { staggerChildren: 0.05 } },
+  visible: {},
 };
 
 // Payment method categories
@@ -560,9 +560,10 @@ export default function WalletPage() {
             onClick={closeModal}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
               className="bg-dark-800 border border-dark-600 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
