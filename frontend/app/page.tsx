@@ -45,6 +45,8 @@ import Footer from './components/layout/Footer';
 import Button from './components/ui/Button';
 import { Card } from './components/ui/Card';
 import { marketAPI } from './lib/api';
+import { useLanguageStore } from './lib/store';
+import { getTranslation } from './lib/i18n';
 
 // Animation variants
 const fadeInUp = {
@@ -226,6 +228,10 @@ export default function HomePage() {
   const [mounted, setMounted] = useState(false);
   const [cryptos, setCryptos] = useState(defaultCryptos);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const { language } = useLanguageStore();
+  
+  // Translation helper
+  const t = (key: string) => getTranslation(language, key);
 
   useEffect(() => {
     setMounted(true);
@@ -292,7 +298,7 @@ export default function HomePage() {
             <motion.div variants={fadeInUp} className="mb-8">
               <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary-500/10 to-purple-500/10 border border-primary-500/20 text-primary-400 text-sm font-medium backdrop-blur-sm">
                 <BadgeCheck size={18} className="text-primary-400" />
-                Trusted by 50,000+ investors worldwide
+                {t('hero.badge')}
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               </span>
             </motion.div>
@@ -302,10 +308,10 @@ export default function HomePage() {
               variants={fadeInUp}
               className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.1] tracking-tight"
             >
-              Your Wealth,{' '}
+              {t('hero.title')}{' '}
               <span className="relative">
                 <span className="bg-gradient-to-r from-primary-400 via-emerald-400 to-primary-500 bg-clip-text text-transparent">
-                  Amplified.
+                  {t('hero.titleHighlight')}
                 </span>
                 <motion.span
                   className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-emerald-500 rounded-full"
@@ -321,7 +327,7 @@ export default function HomePage() {
               variants={fadeInUp}
               className="text-xl md:text-2xl text-gray-400 mb-10 max-w-3xl mx-auto leading-relaxed"
             >
-              Join the elite investors earning <span className="text-primary-400 font-semibold">up to 3% daily returns</span> with our AI-powered trading platform. Secure, transparent, and built for growth.
+              {t('hero.subtitle')}
             </motion.p>
 
             {/* CTA Buttons */}
@@ -331,14 +337,14 @@ export default function HomePage() {
             >
               <Link href="/auth/register">
                 <Button size="lg" className="group px-8 py-4 text-lg">
-                  Start Investing Now
+                  {t('hero.cta')}
                   <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
               <Link href="/plans">
                 <Button variant="secondary" size="lg" className="px-8 py-4 text-lg">
                   <Play size={20} className="mr-2" />
-                  View Plans
+                  {t('hero.secondary')}
                 </Button>
               </Link>
             </motion.div>

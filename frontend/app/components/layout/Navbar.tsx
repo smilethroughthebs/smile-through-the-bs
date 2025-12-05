@@ -12,17 +12,10 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronDown, User, LogOut, Settings, Wallet } from 'lucide-react';
 import { clsx } from 'clsx';
-import { useAuthStore } from '@/app/lib/store';
+import { useAuthStore, useLanguageStore } from '@/app/lib/store';
+import { getTranslation } from '@/app/lib/i18n';
 import Button from '../ui/Button';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
-
-const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
-  { href: '/plans', label: 'Investment Plans' },
-  { href: '/faq', label: 'FAQ' },
-  { href: '/contact', label: 'Contact' },
-];
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -30,6 +23,19 @@ export default function Navbar() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const pathname = usePathname();
   const { user, isAuthenticated, logout } = useAuthStore();
+  const { language } = useLanguageStore();
+  
+  // Translation helper
+  const t = (key: string) => getTranslation(language, key);
+  
+  // Nav links with translations
+  const navLinks = [
+    { href: '/', labelKey: 'nav.home' },
+    { href: '/about', labelKey: 'nav.about' },
+    { href: '/plans', labelKey: 'nav.plans' },
+    { href: '/faq', labelKey: 'nav.faq' },
+    { href: '/contact', labelKey: 'nav.contact' },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,7 +82,7 @@ export default function Navbar() {
                     : 'text-gray-400 hover:text-white'
                 )}
               >
-                {link.label}
+                {t(link.labelKey)}
               </Link>
             ))}
           </div>
@@ -127,7 +133,7 @@ export default function Navbar() {
                           onClick={() => setIsProfileOpen(false)}
                         >
                           <Wallet size={18} />
-                          Dashboard
+                          {t('nav.dashboard')}
                         </Link>
                         <Link
                           href="/dashboard/settings"
@@ -142,7 +148,7 @@ export default function Navbar() {
                           className="flex items-center gap-3 w-full px-4 py-2 text-error hover:bg-error/10 rounded-lg transition-colors"
                         >
                           <LogOut size={18} />
-                          Logout
+                          {t('nav.logout')}
                         </button>
                       </div>
                     </motion.div>
@@ -153,12 +159,12 @@ export default function Navbar() {
               <>
                 <Link href="/auth/login">
                   <Button variant="ghost" size="sm">
-                    Login
+                    {t('nav.login')}
                   </Button>
                 </Link>
                 <Link href="/auth/register">
                   <Button variant="primary" size="sm">
-                    Get Started
+                    {t('nav.register')}
                   </Button>
                 </Link>
               </>
@@ -195,7 +201,7 @@ export default function Navbar() {
                   )}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  {link.label}
+                  {t(link.labelKey)}
                 </Link>
               ))}
               <div className="flex justify-center pb-4">
@@ -210,7 +216,7 @@ export default function Navbar() {
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Button variant="primary" className="w-full">
-                        Dashboard
+                        {t('nav.dashboard')}
                       </Button>
                     </Link>
                     <Button
@@ -218,7 +224,7 @@ export default function Navbar() {
                       className="w-full"
                       onClick={handleLogout}
                     >
-                      Logout
+                      {t('nav.logout')}
                     </Button>
                   </>
                 ) : (
@@ -229,7 +235,7 @@ export default function Navbar() {
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Button variant="secondary" className="w-full">
-                        Login
+                        {t('nav.login')}
                       </Button>
                     </Link>
                     <Link
@@ -238,7 +244,7 @@ export default function Navbar() {
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Button variant="primary" className="w-full">
-                        Get Started
+                        {t('nav.register')}
                       </Button>
                     </Link>
                   </>

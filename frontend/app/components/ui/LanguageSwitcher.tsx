@@ -60,9 +60,9 @@ export default function LanguageSwitcher({ variant = 'default', className = '' }
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="absolute right-0 mt-2 w-48 bg-dark-800 border border-dark-700 rounded-xl shadow-xl overflow-hidden z-50"
+              className="absolute right-0 mt-2 w-48 bg-dark-800 border border-dark-700 rounded-xl shadow-xl z-50"
             >
-              <div className="py-2">
+              <div className="py-2 max-h-72 overflow-y-auto">
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
@@ -107,10 +107,10 @@ export default function LanguageSwitcher({ variant = 'default', className = '' }
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 w-56 bg-dark-800 border border-dark-700 rounded-2xl shadow-xl overflow-hidden z-50"
+            className="absolute right-0 mt-2 w-56 bg-dark-800 border border-dark-700 rounded-2xl shadow-xl z-50"
           >
-            <div className="p-2">
-              <p className="px-3 py-2 text-xs text-gray-500 uppercase tracking-wider">
+            <div className="p-2 max-h-80 overflow-y-auto">
+              <p className="px-3 py-2 text-xs text-gray-500 uppercase tracking-wider sticky top-0 bg-dark-800">
                 Select Language
               </p>
               {languages.map((lang) => (
