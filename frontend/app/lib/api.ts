@@ -160,6 +160,7 @@ export const adminAPI = {
   deletePlan: (id: string) => api.delete(`/admin/plans/${id}`),
   getLogs: (params?: any) => api.get('/admin/logs', { params }),
   getStats: () => api.get('/admin/stats'),
+  clearTestData: () => api.post('/admin/clear-test-data'),
 };
 
 export default api;

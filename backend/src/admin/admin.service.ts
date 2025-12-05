@@ -575,6 +575,57 @@ export class AdminService {
 
     return createPaginatedResponse(logs, total, page, limit);
   }
+
+  // ==========================================
+  // DATA MANAGEMENT
+  // ==========================================
+
+  /**
+   * Clear all test data (keeps admin accounts)
+   */
+  async clearTestData(adminId: string) {
+    // Get all non-admin user IDs
+    const nonAdminUsers = await this.userModel.find({ 
+      role: UserRole.USER 
+    }).select('_id');
+    
+    const userIds = nonAdminUsers.map(u => u._id);
+
+    // Delete all related data
+    const [
+      deletedDeposits,
+      deletedWithdrawals,
+      deletedTransactions,
+      deletedInvestments,
+      deletedWallets,
+      deletedUsers,
+    ] = await Promise.all([
+      this.depositModel.deleteMany({ userId: { $in: userIds } }),
+      this.withdrawalModel.deleteMany({ userId: { $in: userIds } }),
+      this.transactionModel.deleteMany({ userId: { $in: userIds } }),
+      this.investmentModel.deleteMany({ userId: { $in: userIds } }),
+      this.walletModel.deleteMany({ userId: { $in: userIds } }),
+      this.userModel.deleteMany({ role: UserRole.USER }),
+    ]);
+
+    // Log admin action
+    await this.logAdminAction(adminId, AdminActionType.OTHER, {
+      description: `Cleared all test data: ${deletedUsers.deletedCount} users, ${deletedDeposits.deletedCount} deposits, ${deletedWithdrawals.deletedCount} withdrawals, ${deletedTransactions.deletedCount} transactions, ${deletedInvestments.deletedCount} investments`,
+    });
+
+    return {
+      success: true,
+      message: 'Test data cleared successfully',
+      deleted: {
+        users: deletedUsers.deletedCount,
+        deposits: deletedDeposits.deletedCount,
+        withdrawals: deletedWithdrawals.deletedCount,
+        transactions: deletedTransactions.deletedCount,
+        investments: deletedInvestments.deletedCount,
+        wallets: deletedWallets.deletedCount,
+      },
+    };
+  }
 }
 
 

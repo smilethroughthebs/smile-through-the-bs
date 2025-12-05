@@ -188,6 +188,19 @@ export class AdminController {
   async getAdminLogs(@Query() paginationDto: PaginationDto) {
     return this.adminService.getAdminLogs(paginationDto);
   }
+
+  // ==========================================
+  // DATA MANAGEMENT
+  // ==========================================
+
+  /**
+   * Clear all test data (keeps admin accounts)
+   * POST /admin/clear-test-data
+   */
+  @Post('clear-test-data')
+  async clearTestData(@CurrentUser('sub') adminId: string) {
+    return this.adminService.clearTestData(adminId);
+  }
 }
 
 

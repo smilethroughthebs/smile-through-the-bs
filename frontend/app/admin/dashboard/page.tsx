@@ -229,6 +229,27 @@ export default function AdminDashboardPage() {
     toast.success('Dashboard refreshed');
   };
 
+  const [isClearing, setIsClearing] = useState(false);
+
+  const handleClearTestData = async () => {
+    if (!confirm('Are you sure you want to clear ALL test data? This will delete all non-admin users, deposits, withdrawals, and transactions. This action cannot be undone!')) {
+      return;
+    }
+    
+    setIsClearing(true);
+    try {
+      const response = await adminAPI.clearTestData();
+      const deleted = response.data?.deleted || response.data;
+      toast.success(`Cleared: ${deleted.users || 0} users, ${deleted.deposits || 0} deposits, ${deleted.withdrawals || 0} withdrawals`);
+      fetchDashboardData();
+    } catch (error) {
+      toast.error('Failed to clear test data');
+      console.error(error);
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'deposit':
@@ -318,6 +339,13 @@ export default function AdminDashboardPage() {
           <span className="text-sm text-gray-500">
             Last updated: {new Date().toLocaleTimeString()}
           </span>
+          <button
+            onClick={handleClearTestData}
+            disabled={isClearing}
+            className="px-4 py-2 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-all disabled:opacity-50 text-sm font-medium"
+          >
+            {isClearing ? 'Clearing...' : 'Clear Test Data'}
+          </button>
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
