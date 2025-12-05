@@ -59,7 +59,7 @@ const timeline = [
 ];
 
 const team = [
-  { name: 'Alexander Chen', role: 'CEO & Founder', image: '👨‍💼' },
+  { name: 'Karlos Victor', role: 'CEO & Founder', image: '👨‍💼' },
   { name: 'Sarah Mitchell', role: 'Chief Investment Officer', image: '👩‍💼' },
   { name: 'David Park', role: 'Head of Security', image: '👨‍💻' },
   { name: 'Emma Williams', role: 'Customer Success Lead', image: '👩‍💻' },
