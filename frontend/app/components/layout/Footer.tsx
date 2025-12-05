@@ -19,7 +19,7 @@ const footerLinks = {
   support: [
     { label: 'Help Center', href: '/faq' },
     { label: 'Contact Us', href: '/contact' },
-    { label: 'Live Chat', href: '/support' },
+    { label: 'Support', href: '/support' },
     { label: 'System Status', href: '/status' },
   ],
   legal: [
