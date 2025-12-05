@@ -2,7 +2,6 @@
 
 /**
  * VARLIXO - WALLET PAGE
- * Main wallet with navigation to separate deposit/withdraw pages
  */
 
 import { useEffect, useState } from 'react';
@@ -199,7 +198,6 @@ export default function WalletPage() {
 
       {/* Transaction History */}
       <div className="grid lg:grid-cols-2 gap-6">
-        {/* Recent Deposits */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -211,19 +209,14 @@ export default function WalletPage() {
           {deposits.length > 0 ? (
             <div className="space-y-3">
               {deposits.map((deposit) => (
-                <div
-                  key={deposit._id}
-                  className="flex items-center justify-between p-4 bg-dark-800/50 rounded-xl"
-                >
+                <div key={deposit._id} className="flex items-center justify-between p-4 bg-dark-800/50 rounded-xl">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
                       <ArrowDownLeft className="text-green-500" size={18} />
                     </div>
                     <div>
                       <p className="text-white font-semibold">${deposit.amount?.toLocaleString() || '0'}</p>
-                      <p className="text-sm text-gray-500">
-                        {new Date(deposit.createdAt).toLocaleDateString()}
-                      </p>
+                      <p className="text-sm text-gray-500">{new Date(deposit.createdAt).toLocaleDateString()}</p>
                     </div>
                   </div>
                   {getStatusBadge(deposit.status)}
@@ -237,15 +230,12 @@ export default function WalletPage() {
               </div>
               <p className="text-gray-400">No deposits yet</p>
               <Link href="/dashboard/wallet/deposit">
-                <Button variant="ghost" size="sm" className="mt-3">
-                  Make a Deposit
-                </Button>
+                <Button variant="ghost" size="sm" className="mt-3">Make a Deposit</Button>
               </Link>
             </div>
           )}
         </Card>
 
-        {/* Recent Withdrawals */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -257,19 +247,14 @@ export default function WalletPage() {
           {withdrawals.length > 0 ? (
             <div className="space-y-3">
               {withdrawals.map((withdrawal) => (
-                <div
-                  key={withdrawal._id}
-                  className="flex items-center justify-between p-4 bg-dark-800/50 rounded-xl"
-                >
+                <div key={withdrawal._id} className="flex items-center justify-between p-4 bg-dark-800/50 rounded-xl">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
                       <ArrowUpRight className="text-red-500" size={18} />
                     </div>
                     <div>
                       <p className="text-white font-semibold">${withdrawal.amount?.toLocaleString() || '0'}</p>
-                      <p className="text-sm text-gray-500">
-                        {new Date(withdrawal.createdAt).toLocaleDateString()}
-                      </p>
+                      <p className="text-sm text-gray-500">{new Date(withdrawal.createdAt).toLocaleDateString()}</p>
                     </div>
                   </div>
                   {getStatusBadge(withdrawal.status)}
