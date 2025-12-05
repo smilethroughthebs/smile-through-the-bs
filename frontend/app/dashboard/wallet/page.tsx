@@ -42,14 +42,14 @@ import Input from '@/app/components/ui/Input';
 import { useAuthStore } from '@/app/lib/store';
 import { walletAPI } from '@/app/lib/api';
 
-// Animation variants
+// Animation variants - simplified to prevent shaking
 const fadeInUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.3 } },
 };
 
 const stagger = {
-  visible: { transition: { staggerChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.05 } },
 };
 
 // Payment method categories
@@ -248,6 +248,7 @@ export default function WalletPage() {
     setGiftCardPin('');
     setProofImage(null);
     setShowConfirmation(false);
+    setIsLoading(false); // Reset loading state
     setWithdrawalData({
       amount: '',
       paymentMethod: '',
@@ -258,6 +259,17 @@ export default function WalletPage() {
       routingNumber: '',
       swiftCode: '',
     });
+  };
+
+  // Reset loading when modal opens
+  const openDepositModal = () => {
+    setActiveTab('deposit');
+    setShowModal(true);
+    setStep(1);
+    setIsLoading(false);
+    setSelectedMethod(null);
+    setAmount('');
+    setDepositInstructions(null);
   };
 
   const getStatusBadge = (status: string) => {
@@ -378,11 +390,7 @@ export default function WalletPage() {
           size="lg"
           className="flex-1 sm:flex-none min-w-[160px]"
           leftIcon={<ArrowDownLeft size={20} />}
-          onClick={() => {
-            setActiveTab('deposit');
-            setShowModal(true);
-            setStep(1);
-          }}
+          onClick={openDepositModal}
         >
           Deposit Funds
         </Button>
@@ -420,6 +428,8 @@ export default function WalletPage() {
                   setSelectedMethod(method.id);
                   setShowModal(true);
                   setStep(2);
+                  setIsLoading(false);
+                  setAmount('');
                 }}
                 className="group p-4 rounded-xl border border-dark-600 bg-dark-800/50 hover:border-primary-500/50 hover:bg-primary-500/5 transition-all text-center"
               >
@@ -483,10 +493,7 @@ export default function WalletPage() {
                 variant="ghost"
                 size="sm"
                 className="mt-4"
-                onClick={() => {
-                  setActiveTab('deposit');
-                  setShowModal(true);
-                }}
+                onClick={openDepositModal}
               >
                 Make a Deposit
               </Button>
@@ -712,15 +719,25 @@ export default function WalletPage() {
                         )}
 
                         <div className="flex gap-3">
-                          <Button variant="ghost" onClick={() => setStep(1)} className="flex-1">
+                          <Button 
+                            variant="ghost" 
+                            onClick={() => {
+                              setStep(1);
+                              setIsLoading(false);
+                              setAmount('');
+                              setSelectedMethod(null);
+                            }} 
+                            className="flex-1"
+                          >
                             Back
                           </Button>
                           <Button
                             className="flex-1"
                             isLoading={isLoading}
                             onClick={handleDeposit}
+                            disabled={isLoading}
                           >
-                            Continue
+                            {isLoading ? 'Processing...' : 'Continue'}
                           </Button>
                         </div>
                       </div>

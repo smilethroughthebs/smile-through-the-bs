@@ -105,3 +105,4 @@ export default function PasswordStrength({ password }: PasswordStrengthProps) {
   );
 }
 
+

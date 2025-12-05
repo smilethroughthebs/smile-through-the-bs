@@ -299,3 +299,4 @@ export function getTranslation(lang: Language, key: string): string {
 // Export default language
 export const defaultLanguage: Language = 'en';
 
+
