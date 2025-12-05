@@ -28,7 +28,8 @@ import toast from 'react-hot-toast';
 import { Card, CardHeader, CardTitle } from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
 import Input from '@/app/components/ui/Input';
-import { useAuthStore } from '@/app/lib/store';
+import { useAuthStore, useLanguageStore } from '@/app/lib/store';
+import { languages } from '@/app/lib/i18n';
 import { authAPI } from '@/app/lib/api';
 
 const profileSchema = z.object({
@@ -60,6 +61,7 @@ type PasswordForm = z.infer<typeof passwordSchema>;
 
 export default function SettingsPage() {
   const { user, updateUser } = useAuthStore();
+  const { language, setLanguage } = useLanguageStore();
   const [activeTab, setActiveTab] = useState('profile');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -118,6 +120,7 @@ export default function SettingsPage() {
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'security', label: 'Security', icon: Shield },
+    { id: 'preferences', label: 'Preferences', icon: Globe },
     { id: 'notifications', label: 'Notifications', icon: Bell },
   ];
 
@@ -324,6 +327,107 @@ export default function SettingsPage() {
                     Active
                   </span>
                 </div>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* Preferences Tab */}
+      {activeTab === 'preferences' && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          {/* Language Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Language & Region</CardTitle>
+            </CardHeader>
+            <div className="p-6 pt-0">
+              <label className="block text-sm font-medium text-gray-300 mb-3">
+                Display Language
+              </label>
+              <p className="text-gray-500 text-sm mb-4">
+                Choose the language you want to use throughout the platform
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {languages.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => setLanguage(lang.code)}
+                    className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
+                      language === lang.code
+                        ? 'bg-primary-500/10 border-primary-500 text-white'
+                        : 'bg-dark-800 border-dark-700 text-gray-400 hover:border-dark-600 hover:text-white'
+                    }`}
+                  >
+                    <span className="text-2xl">{lang.flag}</span>
+                    <div className="text-left">
+                      <p className="font-medium">{lang.nativeName}</p>
+                      <p className="text-xs text-gray-500">{lang.name}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </Card>
+
+          {/* Theme Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Theme</CardTitle>
+            </CardHeader>
+            <div className="p-6 pt-0">
+              <p className="text-gray-500 text-sm mb-4">
+                Choose your preferred color theme
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <button className="flex items-center gap-3 p-4 rounded-xl border bg-primary-500/10 border-primary-500 text-white">
+                  <Moon size={20} />
+                  <span className="font-medium">Dark</span>
+                </button>
+                <button className="flex items-center gap-3 p-4 rounded-xl border bg-dark-800 border-dark-700 text-gray-400 hover:border-dark-600 cursor-not-allowed opacity-50">
+                  <Sun size={20} />
+                  <span className="font-medium">Light</span>
+                  <span className="text-xs text-primary-500">(Coming soon)</span>
+                </button>
+              </div>
+            </div>
+          </Card>
+
+          {/* Currency Preference */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Currency Display</CardTitle>
+            </CardHeader>
+            <div className="p-6 pt-0">
+              <p className="text-gray-500 text-sm mb-4">
+                Choose how amounts are displayed
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {[
+                  { code: 'USD', symbol: '$', name: 'US Dollar' },
+                  { code: 'EUR', symbol: '€', name: 'Euro' },
+                  { code: 'GBP', symbol: '£', name: 'British Pound' },
+                  { code: 'BTC', symbol: '₿', name: 'Bitcoin' },
+                ].map((currency) => (
+                  <button
+                    key={currency.code}
+                    className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
+                      currency.code === 'USD'
+                        ? 'bg-primary-500/10 border-primary-500 text-white'
+                        : 'bg-dark-800 border-dark-700 text-gray-400 hover:border-dark-600 hover:text-white'
+                    }`}
+                  >
+                    <span className="text-2xl font-bold">{currency.symbol}</span>
+                    <div className="text-left">
+                      <p className="font-medium">{currency.code}</p>
+                      <p className="text-xs text-gray-500">{currency.name}</p>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           </Card>

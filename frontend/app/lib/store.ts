@@ -183,5 +183,35 @@ export const useNotificationStore = create<NotificationState>((set) => ({
   clearAll: () => set({ notifications: [], unreadCount: 0 }),
 }));
 
+// Language store
+import { Language, getTranslation, defaultLanguage, languages } from './i18n';
 
+interface LanguageState {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string) => string;
+}
+
+export const useLanguageStore = create<LanguageState>()(
+  persist(
+    (set, get) => ({
+      language: defaultLanguage,
+      
+      setLanguage: (lang) => {
+        set({ language: lang });
+        // Update document direction for RTL languages
+        const langConfig = languages.find(l => l.code === lang);
+        if (langConfig) {
+          document.documentElement.dir = langConfig.dir;
+          document.documentElement.lang = lang;
+        }
+      },
+      
+      t: (key) => getTranslation(get().language, key),
+    }),
+    {
+      name: 'varlixo-language',
+    }
+  )
+);
 

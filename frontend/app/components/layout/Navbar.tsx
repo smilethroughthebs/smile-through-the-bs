@@ -14,6 +14,7 @@ import { Menu, X, ChevronDown, User, LogOut, Settings, Wallet } from 'lucide-rea
 import { clsx } from 'clsx';
 import { useAuthStore } from '@/app/lib/store';
 import Button from '../ui/Button';
+import LanguageSwitcher from '../ui/LanguageSwitcher';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -82,6 +83,7 @@ export default function Navbar() {
 
           {/* Auth Buttons */}
           <div className="hidden lg:flex items-center gap-4">
+            <LanguageSwitcher variant="compact" />
             {isAuthenticated ? (
               <div className="relative">
                 <button
@@ -196,7 +198,10 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <div className="pt-4 border-t border-dark-700 space-y-3">
+              <div className="flex justify-center pb-4">
+                  <LanguageSwitcher />
+                </div>
+                <div className="pt-4 border-t border-dark-700 space-y-3">
                 {isAuthenticated ? (
                   <>
                     <Link
