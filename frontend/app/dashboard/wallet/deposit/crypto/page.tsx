@@ -253,10 +253,18 @@ export default function CryptoDepositPage() {
               </div>
             </div>
 
-            {/* QR Code */}
+            {/* QR Code - Using QR Server API */}
             <div className="flex justify-center mb-6">
-              <div className="w-48 h-48 bg-white rounded-xl flex items-center justify-center p-4">
-                <QrCode size={140} className="text-dark-900" />
+              <div className="w-48 h-48 bg-white rounded-xl flex items-center justify-center p-2 overflow-hidden">
+                {depositInstructions.instructions?.address ? (
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(depositInstructions.instructions.address)}`}
+                    alt="Wallet QR Code"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <QrCode size={140} className="text-dark-900" />
+                )}
               </div>
             </div>
 
