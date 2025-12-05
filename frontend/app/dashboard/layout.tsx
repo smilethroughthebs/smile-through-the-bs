@@ -26,6 +26,9 @@ import {
   ChevronDown,
   Moon,
   Sun,
+  Bot,
+  ArrowLeftRight,
+  Calculator,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuthStore, useUIStore } from '@/app/lib/store';
@@ -37,6 +40,8 @@ const sidebarLinks = [
   { href: '/dashboard/wallet', icon: Wallet, label: 'Wallet' },
   { href: '/dashboard/investments', icon: TrendingUp, label: 'Investments' },
   { href: '/dashboard/transactions', icon: History, label: 'Transactions' },
+  { href: '/dashboard/advisor', icon: Bot, label: 'AI Advisor', badge: 'NEW' },
+  { href: '/dashboard/converter', icon: ArrowLeftRight, label: 'Crypto Converter' },
   { href: '/dashboard/referrals', icon: Users, label: 'Referrals' },
   { href: '/dashboard/kyc', icon: Shield, label: 'KYC Verification' },
   { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
@@ -134,7 +139,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Navigation */}
           <nav className="flex-1 px-4 py-2 overflow-y-auto">
             <ul className="space-y-1">
-              {sidebarLinks.map((link) => {
+              {sidebarLinks.map((link: any) => {
                 const isActive = pathname === link.href;
                 return (
                   <li key={link.href}>
@@ -148,7 +153,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       )}
                     >
                       <link.icon size={20} />
-                      <span className="font-medium">{link.label}</span>
+                      <span className="font-medium flex-1">{link.label}</span>
+                      {link.badge && (
+                        <span className="px-2 py-0.5 bg-primary-500 text-white text-xs font-bold rounded-full">
+                          {link.badge}
+                        </span>
+                      )}
                     </Link>
                   </li>
                 );
