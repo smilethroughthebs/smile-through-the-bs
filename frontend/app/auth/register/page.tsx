@@ -54,6 +54,12 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [referrer, setReferrer] = useState<string | null>(null);
   const [passwordValue, setPasswordValue] = useState('');
+  const [mounted, setMounted] = useState(false);
+
+  // Quick mount for faster perceived loading
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const {
     register,
@@ -62,6 +68,7 @@ export default function RegisterPage() {
     formState: { errors },
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
+    mode: 'onSubmit', // Only validate on submit for better performance
     defaultValues: {
       agreeTerms: false,
     },
@@ -101,6 +108,15 @@ export default function RegisterPage() {
     }
   };
 
+  // Show instant skeleton while mounting
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-dark-900 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-dark-900 flex">
       {/* Left Side - Decorative */}
@@ -113,9 +129,9 @@ export default function RegisterPage() {
 
         <div className="relative">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
           >
             <h2 className="text-4xl font-bold text-white mb-6">
               Start Your Investment Journey
@@ -132,18 +148,15 @@ export default function RegisterPage() {
                 '24/7 customer support',
                 'Referral rewards program',
               ].map((feature, index) => (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
                   className="flex items-center gap-3"
                 >
                   <div className="w-6 h-6 rounded-full bg-primary-500/20 flex items-center justify-center">
                     <Check size={14} className="text-primary-500" />
                   </div>
                   <span className="text-gray-300">{feature}</span>
-                </motion.div>
+                </div>
               ))}
             </div>
           </motion.div>
@@ -153,8 +166,9 @@ export default function RegisterPage() {
       {/* Right Side - Form */}
       <div className="flex-1 flex items-center justify-center p-8 overflow-y-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
           className="w-full max-w-md py-8"
         >
           {/* Logo */}

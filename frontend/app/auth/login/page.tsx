@@ -6,7 +6,7 @@
  * ==============================================
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -35,6 +35,12 @@ export default function LoginPage() {
   const { login } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [requires2FA, setRequires2FA] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Quick mount for faster perceived loading
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const {
     register,
@@ -42,6 +48,7 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
+    mode: 'onSubmit', // Only validate on submit for better performance
   });
 
   const onSubmit = async (data: LoginForm) => {
@@ -75,13 +82,23 @@ export default function LoginPage() {
     }
   };
 
+  // Show instant skeleton while mounting
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-dark-900 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-dark-900 flex">
       {/* Left Side - Form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
           className="w-full max-w-md"
         >
           {/* Logo */}
@@ -182,9 +199,9 @@ export default function LoginPage() {
 
         <div className="relative text-center">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
           >
             <div className="w-32 h-32 bg-gradient-to-br from-primary-500 to-primary-600 rounded-3xl mx-auto mb-8 flex items-center justify-center shadow-glow">
               <span className="text-6xl font-bold text-white">V</span>
