@@ -37,13 +37,62 @@ const quickReplies = [
   'Contact support',
 ];
 
-const botResponses: Record<string, string> = {
-  'how do i deposit': 'To make a deposit:\n\n1. Go to Dashboard → Wallet\n2. Click "Deposit"\n3. Choose your payment method (BTC, ETH, USDT)\n4. Send funds to the provided address\n5. Wait for confirmation\n\nMinimum deposit is $100. Need more help?',
-  'withdrawal': 'To withdraw:\n\n1. Go to Dashboard → Wallet\n2. Click "Withdraw"\n3. Enter amount and wallet address\n4. Confirm withdrawal\n\nWithdrawals are processed within 24 hours. Minimum withdrawal is $50.',
-  'investment': 'We offer 3 investment plans:\n\n🥉 Starter: 1.5% daily (30 days)\n🥈 Professional: 2.5% daily (45 days)\n🥇 Elite: 3% daily (60 days)\n\nAll plans return your principal at the end. Visit /plans to learn more!',
-  'kyc': 'KYC verification requires:\n\n1. Government-issued ID (passport/driver\'s license)\n2. Selfie with ID\n3. Proof of address (optional)\n\nVerification takes 24-48 hours. Go to Dashboard → KYC to start.',
-  'support': 'You can reach our support team:\n\n📧 Email: support@varlixo.com\n📱 WhatsApp: +1 (888) 123-4567\n💬 Live Chat: You\'re using it!\n\nWe respond within 24 hours.',
-  'default': 'Thanks for your message! Our AI is processing your request. For immediate assistance, you can:\n\n• Check our FAQ section\n• Email support@varlixo.com\n• Call +1 (888) 123-4567\n\nAn agent will be with you shortly!',
+// Smart chat responses
+const getBotResponse = (msg: string): string => {
+  const lower = msg.toLowerCase();
+  
+  // Greetings
+  if (lower.match(/^(hi|hello|hey|good\s*(morning|afternoon|evening))/i)) {
+    const greetings = [
+      'Hey there! 👋 Welcome to Varlixo support! How can I help you today?',
+      'Hello! 😊 I\'m here to help. What can I assist you with?',
+      'Hi! 🌟 Thanks for reaching out. What would you like to know?',
+    ];
+    return greetings[Math.floor(Math.random() * greetings.length)];
+  }
+  
+  // Deposit questions
+  if (lower.match(/deposit|add\s*money|fund|pay/i)) {
+    return 'To make a deposit:\n\n1️⃣ Go to Dashboard → Wallet\n2️⃣ Click "Deposit"\n3️⃣ Choose: BTC, ETH, or USDT\n4️⃣ Copy the wallet address\n5️⃣ Send from your exchange/wallet\n\n⏱️ Processing: 10-30 minutes\n💰 Minimum: $100\n\nNeed help with a specific step?';
+  }
+  
+  // Withdrawal questions
+  if (lower.match(/withdraw|cash\s*out|payout|get\s*my\s*money/i)) {
+    return 'Withdrawal process:\n\n1️⃣ Go to Dashboard → Wallet\n2️⃣ Click "Withdraw"\n3️⃣ Enter amount & address\n4️⃣ Confirm with 2FA\n\n⏱️ Crypto: 1-24 hours\n💰 Minimum: $50\n✨ Daily profits withdrawable anytime!\n\nAny questions about withdrawals?';
+  }
+  
+  // Investment/plans
+  if (lower.match(/invest|plan|return|profit|earn|roi/i)) {
+    return 'Our investment plans:\n\n🥉 **Starter**: 1.5%/day (30 days)\nMin $100 | ~45% total return\n\n🥈 **Professional**: 2.5%/day (45 days)\nMin $5,000 | ~112% total return\n\n🥇 **Elite**: 3%/day (60 days)\nMin $25,000 | ~180% total return\n\n✅ Principal returned at end!\n\nWant me to calculate specific returns?';
+  }
+  
+  // KYC
+  if (lower.match(/kyc|verify|verification|identity|document/i)) {
+    return 'KYC verification:\n\n📄 **Required:**\n• Government ID (passport/license)\n• Selfie with your ID\n\n⏱️ **Processing:** 24-48 hours\n\n✅ **Benefits:**\n• Higher limits\n• Faster withdrawals\n• Priority support\n\nStart at Dashboard → KYC!';
+  }
+  
+  // Safety/security
+  if (lower.match(/safe|secure|trust|legit|scam/i)) {
+    return 'Your security is our priority! 🔒\n\n• 256-bit SSL encryption\n• 2FA authentication\n• Cold storage (95% of funds)\n• $100M insurance\n• 50,000+ happy investors\n\nWe\'ve been operating for 4+ years with 99.9% uptime. Your funds are safe!';
+  }
+  
+  // Support/help
+  if (lower.match(/support|help|contact|speak|agent|human/i)) {
+    return 'Contact options:\n\n📧 Email: support@varlixo.com\n📱 WhatsApp: +1 (888) 123-4567\n💬 Live Chat: You\'re here!\n🎫 Tickets: Dashboard → Support\n\n⏱️ Response: Usually within 2 hours!\n\nHow else can I help?';
+  }
+  
+  // Thank you
+  if (lower.match(/thank|thanks|appreciate/i)) {
+    return 'You\'re welcome! 😊 Happy to help! Let me know if you have any other questions. I\'m here 24/7! 🌟';
+  }
+  
+  // Goodbye
+  if (lower.match(/bye|goodbye|later/i)) {
+    return 'Goodbye! 👋 Thanks for chatting. Come back anytime you need help. Happy investing! 📈';
+  }
+  
+  // Default smart response
+  return `Thanks for your message about "${msg.slice(0, 30)}${msg.length > 30 ? '...' : ''}"\n\nI can help you with:\n• 💰 Deposits & Withdrawals\n• 📈 Investment Plans\n• 🔐 KYC Verification\n• 🛡️ Security Questions\n\nOr type "support" to contact our team directly!`;
 };
 
 export default function LiveChat() {
@@ -74,16 +123,8 @@ export default function LiveChat() {
     }
   }, [isOpen, isMinimized]);
 
-  const getBotResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    for (const [key, response] of Object.entries(botResponses)) {
-      if (key !== 'default' && lowerMessage.includes(key)) {
-        return response;
-      }
-    }
-    
-    return botResponses.default;
+  const getResponse = (userMessage: string): string => {
+    return getBotResponse(userMessage);
   };
 
   const handleSend = () => {
@@ -105,7 +146,7 @@ export default function LiveChat() {
       setIsTyping(false);
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: getBotResponse(input),
+        text: getResponse(input),
         sender: 'bot',
         timestamp: new Date(),
       };

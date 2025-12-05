@@ -43,33 +43,202 @@ interface Message {
   feedback?: 'up' | 'down' | null;
 }
 
-// AI Response templates based on keywords
-const aiResponses: Record<string, { response: string; suggestions: string[] }> = {
-  'beginner': {
-    response: `Welcome to investing! Here's my advice for beginners:\n\n📚 **Start Small**\nBegin with our Starter Plan ($100 min) to learn how the platform works.\n\n💡 **Diversify Later**\nOnce comfortable, spread investments across different plans.\n\n⏰ **Be Patient**\nConsistent small investments often outperform risky large ones.\n\n🎯 **Recommended Plan**: Starter Plan at 1.5% daily - perfect for learning!`,
-    suggestions: ['Tell me about the Starter plan', 'What are the risks?', 'How much should I start with?'],
-  },
-  'recommend': {
-    response: `Based on typical investor profiles, here are my recommendations:\n\n💰 **Conservative ($100-$1,000)**\n→ Starter Plan: 1.5% daily, 30 days\n→ Expected return: ~45%\n\n📈 **Moderate ($1,000-$10,000)**\n→ Professional Plan: 2.5% daily, 45 days\n→ Expected return: ~112%\n\n🚀 **Aggressive ($10,000+)**\n→ Elite Plan: 3% daily, 60 days\n→ Expected return: ~180%\n\n⚠️ Remember: Higher returns = Higher risk. Never invest more than you can afford to lose.`,
-    suggestions: ['Calculate my potential earnings', 'What are the risks?', 'How do withdrawals work?'],
-  },
-  'risk': {
-    response: `Understanding investment risks is crucial:\n\n⚠️ **Market Risk**\nCrypto markets are volatile. Our strategies aim to minimize exposure.\n\n🔒 **Platform Security**\n• 256-bit encryption\n• 2FA authentication\n• Cold storage for funds\n• $100M insurance coverage\n\n📊 **Risk Mitigation Tips**\n1. Never invest emergency funds\n2. Start with smaller amounts\n3. Diversify across plans\n4. Withdraw profits regularly\n\n✅ Our track record: 99.8% uptime, 50,000+ satisfied investors.`,
-    suggestions: ['How is my money protected?', 'Show me safe investment options', 'What is your success rate?'],
-  },
-  'withdraw': {
-    response: `Here's how withdrawals work:\n\n💸 **Process**\n1. Go to Wallet → Withdraw\n2. Choose crypto or bank transfer\n3. Enter amount and address\n4. Confirm withdrawal\n\n⏱️ **Processing Time**\n• Crypto: Within 24 hours\n• Bank: 2-5 business days\n\n💰 **Fees**\n• Crypto: Network fee only\n• Bank: Free above $1,000\n\n📌 **Minimum**: $50\n📌 **Daily profits**: Withdrawable anytime!`,
-    suggestions: ['What are the fees?', 'How long does it take?', 'Can I withdraw daily profits?'],
-  },
-  'profit': {
-    response: `Let me explain how profits work:\n\n📈 **Daily Returns**\n• Starter: 1.5%/day ($100 min)\n• Professional: 2.5%/day ($5,000 min)\n• Elite: 3.0%/day ($25,000 min)\n\n💵 **Example Calculation**\n$10,000 in Professional Plan:\n• Daily: $250\n• Weekly: $1,750\n• Total (45 days): $11,250 profit\n• Final return: $21,250\n\n✨ Profits credited daily to your wallet!`,
-    suggestions: ['Calculate my specific returns', 'When do I get my principal back?', 'Can I reinvest profits?'],
-  },
-  'default': {
-    response: `I'm your AI Investment Advisor! I can help you with:\n\n🎯 **Investment Strategies**\nPersonalized recommendations based on your goals\n\n💰 **Plan Selection**\nFinding the right plan for your budget\n\n📊 **Return Calculations**\nProject your potential earnings\n\n🔒 **Risk Assessment**\nUnderstand and manage investment risks\n\n❓ **Platform Questions**\nDeposits, withdrawals, KYC, and more\n\nWhat would you like to know?`,
-    suggestions: ['Recommend a plan for me', 'I\'m a beginner', 'Calculate potential returns', 'Explain the risks'],
-  },
-};
+// Smart AI Engine - Natural Language Processing
+class SmartAI {
+  private context: string[] = [];
+  private userName: string = '';
+  private userBalance: number = 0;
+
+  setContext(name: string, balance: number) {
+    this.userName = name;
+    this.userBalance = balance;
+  }
+
+  // Extract numbers from text
+  extractAmount(text: string): number | null {
+    const patterns = [
+      /\$([0-9,]+(?:\.[0-9]+)?)/,
+      /([0-9,]+(?:\.[0-9]+)?)\s*(?:dollars?|usd|\$)/i,
+      /invest(?:ing)?\s+([0-9,]+(?:\.[0-9]+)?)/i,
+      /([0-9,]+(?:\.[0-9]+)?)\s*(?:k|thousand)/i,
+    ];
+    
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match) {
+        let amount = parseFloat(match[1].replace(/,/g, ''));
+        if (text.toLowerCase().includes('k') || text.toLowerCase().includes('thousand')) {
+          amount *= 1000;
+        }
+        return amount;
+      }
+    }
+    return null;
+  }
+
+  // Calculate investment returns
+  calculateReturns(amount: number, plan: string = 'professional') {
+    const plans: Record<string, { daily: number; duration: number; name: string }> = {
+      starter: { daily: 1.5, duration: 30, name: 'Starter' },
+      professional: { daily: 2.5, duration: 45, name: 'Professional' },
+      elite: { daily: 3.0, duration: 60, name: 'Elite' },
+    };
+    
+    const p = plans[plan] || plans.professional;
+    const dailyProfit = (amount * p.daily) / 100;
+    const totalProfit = dailyProfit * p.duration;
+    const totalReturn = amount + totalProfit;
+    
+    return { dailyProfit, totalProfit, totalReturn, plan: p };
+  }
+
+  // Determine best plan based on amount
+  getBestPlan(amount: number): string {
+    if (amount >= 25000) return 'elite';
+    if (amount >= 5000) return 'professional';
+    return 'starter';
+  }
+
+  // Generate intelligent response
+  generateResponse(userMessage: string): { response: string; suggestions: string[] } {
+    const msg = userMessage.toLowerCase();
+    this.context.push(msg);
+    
+    // GREETINGS
+    if (msg.match(/^(hi|hello|hey|good\s*(morning|afternoon|evening)|what'?s\s*up|sup)/i)) {
+      const greetings = [
+        `Hey${this.userName ? ` ${this.userName}` : ''}! 👋 Great to see you! I'm your AI investment advisor. What's on your mind today?`,
+        `Hello${this.userName ? ` ${this.userName}` : ''}! 🌟 Ready to grow your wealth? Ask me anything about investments!`,
+        `Hi there! 💰 I'm here to help you make smart investment decisions. What would you like to know?`,
+      ];
+      return {
+        response: greetings[Math.floor(Math.random() * greetings.length)],
+        suggestions: ['What plans do you offer?', 'I want to invest $1000', 'Am I ready to invest?'],
+      };
+    }
+
+    // CALCULATE SPECIFIC AMOUNTS
+    const amount = this.extractAmount(msg);
+    if (amount && (msg.includes('invest') || msg.includes('put') || msg.includes('calculate') || msg.includes('earn') || msg.includes('make') || msg.includes('return'))) {
+      const bestPlan = this.getBestPlan(amount);
+      const calc = this.calculateReturns(amount, bestPlan);
+      
+      return {
+        response: `Great question! Let me calculate that for you 🧮\n\n**Investing $${amount.toLocaleString()} in ${calc.plan.name} Plan:**\n\n📊 **Daily Returns**: $${calc.dailyProfit.toFixed(2)} (${calc.plan.daily}%)\n📅 **Duration**: ${calc.plan.duration} days\n💰 **Total Profit**: $${calc.totalProfit.toFixed(2)}\n🎯 **Final Return**: $${calc.totalReturn.toFixed(2)}\n\nThat's a **${((calc.totalProfit / amount) * 100).toFixed(1)}% total return!**\n\n${amount >= 5000 ? '💎 Pro tip: With this amount, you qualify for priority support!' : '💡 Tip: Consider starting here and reinvesting profits for compound growth!'}\n\nReady to get started?`,
+        suggestions: ['Start this investment', 'Show me other plans', 'What are the risks?'],
+      };
+    }
+
+    // HOW MUCH SHOULD I INVEST / BUDGET QUESTIONS
+    if (msg.match(/how\s*much\s*(should|can|to)\s*(i\s*)?(invest|start|put)/i) || msg.includes('budget')) {
+      return {
+        response: `Great question! Here's my personalized advice 💡\n\n**Golden Rules:**\n1. Never invest money you can't afford to lose\n2. Start with 5-10% of your savings max\n3. Keep emergency funds separate\n\n**Based on Investment Size:**\n• $100-$500 → Perfect for testing the waters\n• $1,000-$5,000 → Good for steady growth\n• $5,000-$25,000 → Serious wealth building\n• $25,000+ → Maximum returns with Elite plan\n\n${this.userBalance > 0 ? `\n📊 Your current balance is $${this.userBalance.toLocaleString()}. Based on this, I'd suggest starting with $${Math.min(this.userBalance * 0.1, 5000).toFixed(0)} to test the platform.` : ''}\n\nWhat amount are you considering?`,
+        suggestions: ['Calculate returns for $500', 'Calculate returns for $5000', 'What\'s the minimum?'],
+      };
+    }
+
+    // PLANS / COMPARISON
+    if (msg.match(/plan|option|package|tier|which\s*one|compare|difference/i)) {
+      return {
+        response: `Here are our investment plans! 📋\n\n**🥉 STARTER PLAN**\n• Daily ROI: 1.5%\n• Duration: 30 days\n• Min: $100 | Max: $4,999\n• Total Return: ~45%\n• Best for: Beginners\n\n**🥈 PROFESSIONAL PLAN** ⭐ Most Popular\n• Daily ROI: 2.5%\n• Duration: 45 days\n• Min: $5,000 | Max: $24,999\n• Total Return: ~112%\n• Best for: Serious investors\n\n**🥇 ELITE PLAN**\n• Daily ROI: 3.0%\n• Duration: 60 days\n• Min: $25,000 | Max: $100,000\n• Total Return: ~180%\n• Best for: High-net-worth investors\n\n✅ All plans return your principal at the end!\n\nWhich plan interests you?`,
+        suggestions: ['Tell me more about Professional', 'Calculate $10,000 returns', 'What\'s the safest option?'],
+      };
+    }
+
+    // BEGINNER / NEW / FIRST TIME
+    if (msg.match(/beginner|new|first\s*time|start|never\s*invest|don'?t\s*know|learn/i)) {
+      return {
+        response: `Welcome to the world of investing! 🎉 I'll guide you step by step.\n\n**Your First Steps:**\n\n1️⃣ **Start Small** ($100-$500)\n   Use our Starter Plan to learn the ropes\n\n2️⃣ **Verify Your Account**\n   Complete KYC for full access\n\n3️⃣ **Make Your First Deposit**\n   BTC, ETH, or USDT accepted\n\n4️⃣ **Watch Your Profits**\n   Daily returns credited automatically!\n\n**Beginner Tips:**\n• Don't invest rent money 🏠\n• Start with amount you're OK losing\n• Withdraw some profits regularly\n• Ask me anything - I'm here 24/7!\n\nWhat's your biggest concern about starting?`,
+        suggestions: ['How do I deposit?', 'Is my money safe?', 'Calculate $100 returns'],
+      };
+    }
+
+    // SAFETY / SECURITY / TRUST
+    if (msg.match(/safe|secure|trust|legit|scam|protect|hack|steal|lose|risk/i)) {
+      return {
+        response: `Your security is our #1 priority! 🔒\n\n**How We Protect You:**\n\n🛡️ **Technical Security**\n• 256-bit SSL encryption\n• 2FA authentication\n• Cold storage for 95% of funds\n• DDoS protection\n\n💰 **Financial Protection**\n• $100M insurance coverage\n• Segregated user accounts\n• Regular third-party audits\n\n📊 **Track Record**\n• 50,000+ active investors\n• 99.9% platform uptime\n• 4+ years in operation\n• $150M+ processed\n\n**Risk Disclosure:**\nAll investments carry risk. Only invest what you can afford to lose. Past performance doesn't guarantee future results.\n\nWant to know more about specific security measures?`,
+        suggestions: ['How is 2FA set up?', 'What if you get hacked?', 'Show me success stories'],
+      };
+    }
+
+    // DEPOSIT
+    if (msg.match(/deposit|add\s*(money|funds)|fund\s*my|put\s*money|how\s*to\s*pay/i)) {
+      return {
+        response: `Here's how to deposit funds! 💳\n\n**Step-by-Step:**\n1. Go to **Dashboard → Wallet**\n2. Click **"Deposit"**\n3. Choose your method:\n   • 🟠 Bitcoin (BTC)\n   • 🔷 Ethereum (ETH)\n   • 🟢 Tether (USDT)\n4. Copy the wallet address\n5. Send from your wallet/exchange\n6. Wait for confirmation (10-30 min)\n\n**Details:**\n• Minimum: $100\n• Maximum: Unlimited (verified)\n• Fees: We cover network fees!\n• Processing: Usually under 30 minutes\n\n💡 **Pro Tip:** USDT on TRC-20 has the lowest fees!\n\nNeed help with a specific payment method?`,
+        suggestions: ['I want to deposit BTC', 'What\'s the minimum?', 'How long until it shows?'],
+      };
+    }
+
+    // WITHDRAW
+    if (msg.match(/withdraw|cash\s*out|take\s*out|get\s*my\s*money|payout/i)) {
+      return {
+        response: `Here's how withdrawals work! 💸\n\n**Process:**\n1. Go to **Dashboard → Wallet**\n2. Click **"Withdraw"**\n3. Enter amount & wallet address\n4. Confirm with 2FA\n5. Receive funds!\n\n**Timeframes:**\n• Crypto: 1-24 hours\n• Bank Transfer: 2-5 business days\n\n**Limits:**\n• Minimum: $50\n• Maximum: $50,000/day (verified)\n• Fees: Only network fees\n\n✨ **Daily profits are withdrawable immediately!**\n\n⚠️ Note: Large withdrawals may require additional verification for security.\n\nAnything specific about withdrawals?`,
+        suggestions: ['What are the fees?', 'Can I withdraw daily?', 'How to add bank account?'],
+      };
+    }
+
+    // REFERRAL
+    if (msg.match(/referral|invite|friend|bonus|commission|affiliate/i)) {
+      return {
+        response: `Earn passive income with referrals! 🎁\n\n**How It Works:**\n• Share your unique referral link\n• Earn **5%** of your referrals' investments\n• No limit on referrals!\n\n**Example:**\nRefer 10 friends who invest $1,000 each:\n→ You earn $500 in bonuses! 💰\n\n**Tier Bonuses:**\n• 10+ referrals: +1% bonus\n• 50+ referrals: +2% bonus\n• 100+ referrals: VIP status 🌟\n\n**Find Your Link:**\nDashboard → Referrals → Copy Link\n\nStart sharing and watch your earnings grow!`,
+        suggestions: ['Where\'s my referral link?', 'How do I track referrals?', 'When do I get paid?'],
+      };
+    }
+
+    // KYC
+    if (msg.match(/kyc|verify|verification|identity|document|passport|id/i)) {
+      return {
+        response: `Let me explain KYC verification! 📋\n\n**What You Need:**\n• Government-issued ID (passport/license)\n• Selfie holding your ID\n• Proof of address (optional)\n\n**How to Verify:**\n1. Go to **Dashboard → KYC**\n2. Upload your documents\n3. Wait 24-48 hours\n4. Get verified! ✅\n\n**Benefits of Verification:**\n• Higher withdrawal limits\n• Faster processing\n• Access to Elite plans\n• Priority support\n\n💡 Tip: Use good lighting for photos and ensure all text is readable!\n\nNeed help with the process?`,
+        suggestions: ['What documents do you accept?', 'How long does it take?', 'Is my data safe?'],
+      };
+    }
+
+    // THANK YOU / POSITIVE
+    if (msg.match(/thank|thanks|appreciate|helpful|great|awesome|perfect|good\s*job/i)) {
+      const responses = [
+        `You're welcome! 😊 I'm always here to help. Anything else you'd like to know?`,
+        `Happy to help! 🌟 Feel free to ask me anything else about investing!`,
+        `Glad I could assist! 💪 Remember, I'm available 24/7 for any questions!`,
+      ];
+      return {
+        response: responses[Math.floor(Math.random() * responses.length)],
+        suggestions: ['I have another question', 'How do I get started?', 'That\'s all for now'],
+      };
+    }
+
+    // BYE / GOODBYE
+    if (msg.match(/bye|goodbye|see\s*you|later|that'?s\s*all|done|exit/i)) {
+      return {
+        response: `Goodbye${this.userName ? ` ${this.userName}` : ''}! 👋\n\nRemember:\n• I'm here 24/7 if you need me\n• Check your dashboard for updates\n• Happy investing! 📈\n\nCome back anytime!`,
+        suggestions: ['Actually, one more question', 'Go to Dashboard', 'View Investment Plans'],
+      };
+    }
+
+    // YES / CONFIRM
+    if (msg.match(/^(yes|yeah|yep|sure|ok|okay|definitely|absolutely)$/i)) {
+      return {
+        response: `Great! What would you like to do next? 🚀`,
+        suggestions: ['Make a deposit', 'View my portfolio', 'Calculate returns'],
+      };
+    }
+
+    // DEFAULT - SMART FALLBACK
+    const fallbacks = [
+      {
+        response: `I understand you're asking about "${userMessage.slice(0, 50)}${userMessage.length > 50 ? '...' : ''}"\n\nI'm still learning, but I can definitely help you with:\n\n📊 **Investment Questions**\n• Plan recommendations\n• Return calculations\n• Risk assessment\n\n💰 **Account Operations**\n• Deposits & withdrawals\n• KYC verification\n• Referral program\n\n🔧 **Technical Help**\n• Platform navigation\n• Security settings\n\nTry asking in a different way, or pick from the suggestions below!`,
+        suggestions: ['Recommend a plan', 'Calculate $1000 returns', 'How do deposits work?'],
+      },
+      {
+        response: `Hmm, let me think about that... 🤔\n\nI'm not 100% sure I understood your question. Here's what I can help with:\n\n• **"How much can I earn with $X?"**\n• **"Which plan is best for beginners?"**\n• **"How do I deposit/withdraw?"**\n• **"Is my investment safe?"**\n\nCould you rephrase your question?`,
+        suggestions: ['What are the investment plans?', 'I\'m a beginner', 'Explain the risks'],
+      },
+    ];
+    
+    return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+  }
+}
+
+const smartAI = new SmartAI();
 
 // Suggested prompts
 const suggestedPrompts = [
@@ -99,30 +268,13 @@ export default function AdvisorPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Set AI context with user info
+  useEffect(() => {
+    smartAI.setContext(user?.firstName || '', wallet?.mainBalance || 0);
+  }, [user, wallet]);
+
   const getAIResponse = (userMessage: string): { response: string; suggestions: string[] } => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    for (const [key, value] of Object.entries(aiResponses)) {
-      if (key !== 'default' && lowerMessage.includes(key)) {
-        return value;
-      }
-    }
-    
-    // Check for additional keywords
-    if (lowerMessage.includes('how much') || lowerMessage.includes('calculate') || lowerMessage.includes('earn')) {
-      return aiResponses.profit;
-    }
-    if (lowerMessage.includes('safe') || lowerMessage.includes('secure') || lowerMessage.includes('protect')) {
-      return aiResponses.risk;
-    }
-    if (lowerMessage.includes('start') || lowerMessage.includes('new') || lowerMessage.includes('first')) {
-      return aiResponses.beginner;
-    }
-    if (lowerMessage.includes('which plan') || lowerMessage.includes('best plan') || lowerMessage.includes('suggest')) {
-      return aiResponses.recommend;
-    }
-    
-    return aiResponses.default;
+    return smartAI.generateResponse(userMessage);
   };
 
   const handleSend = (text?: string) => {
