@@ -27,6 +27,7 @@ import { Card, CardHeader, CardTitle } from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
 import Input from '@/app/components/ui/Input';
 import { useAuthStore } from '@/app/lib/store';
+import { referralAPI } from '@/app/lib/api';
 import toast from 'react-hot-toast';
 
 // Animation variants
@@ -71,26 +72,34 @@ export default function ReferralsPage() {
 
   const fetchReferralData = async () => {
     try {
-      // const response = await referralAPI.getStats();
-      // setReferralStats(response.data.data.stats);
-      // setReferredUsers(response.data.data.referrals);
+      const response = await referralAPI.getStats();
+      const data = response.data?.data || response.data;
       
-      // Mock data for demonstration
       setReferralStats({
-        totalReferrals: 12,
-        activeReferrals: 8,
-        totalEarnings: 1250.50,
-        pendingEarnings: 150.00,
-        thisMonthEarnings: 450.25,
-        currentTier: 'Silver',
+        totalReferrals: data?.totalReferrals || user?.totalReferrals || 0,
+        activeReferrals: data?.activeReferrals || 0,
+        totalEarnings: data?.totalEarnings || user?.referralEarnings || 0,
+        pendingEarnings: data?.pendingEarnings || 0,
+        thisMonthEarnings: data?.thisMonthEarnings || 0,
+        currentTier: data?.currentTier || 'Bronze',
       });
-      setReferredUsers([
-        { id: 1, name: 'John D.', email: 'j***d@email.com', joinedAt: '2024-01-15', totalInvested: 5000, earnings: 125 },
-        { id: 2, name: 'Sarah M.', email: 's***m@email.com', joinedAt: '2024-01-20', totalInvested: 2500, earnings: 62.50 },
-        { id: 3, name: 'Mike R.', email: 'm***r@email.com', joinedAt: '2024-02-01', totalInvested: 10000, earnings: 250 },
-      ]);
+      
+      // Fetch referred users
+      const referralsRes = await referralAPI.getReferrals();
+      const referralsData = referralsRes.data?.data?.data || referralsRes.data?.data || [];
+      setReferredUsers(referralsData);
     } catch (error) {
       console.error('Failed to fetch referral data:', error);
+      // Use user data as fallback
+      setReferralStats({
+        totalReferrals: user?.totalReferrals || 0,
+        activeReferrals: 0,
+        totalEarnings: user?.referralEarnings || 0,
+        pendingEarnings: 0,
+        thisMonthEarnings: 0,
+        currentTier: 'Bronze',
+      });
+      setReferredUsers([]);
     } finally {
       setIsLoading(false);
     }
@@ -539,30 +548,37 @@ export default function ReferralsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-dark-700">
-                  {referredUsers.map((user) => (
-                    <tr key={user.id}>
-                      <td className="py-4 pr-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-semibold text-sm">
-                            {user.name.split(' ').map((n: string) => n[0]).join('')}
+                  {referredUsers.map((refUser, index) => {
+                    const firstName = refUser.firstName || refUser.name?.split(' ')[0] || 'User';
+                    const lastName = refUser.lastName || refUser.name?.split(' ')[1] || '';
+                    const email = refUser.email || 'N/A';
+                    const initials = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'U';
+                    
+                    return (
+                      <tr key={refUser._id || refUser.id || index}>
+                        <td className="py-4 pr-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-semibold text-sm">
+                              {initials}
+                            </div>
+                            <div>
+                              <p className="text-white font-medium">{firstName} {lastName}</p>
+                              <p className="text-sm text-gray-500">{email.slice(0, 3)}***@{email.split('@')[1] || 'email.com'}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-white font-medium">{user.name}</p>
-                            <p className="text-sm text-gray-500">{user.email}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 pr-4 text-gray-400">
-                        {new Date(user.joinedAt).toLocaleDateString()}
-                      </td>
-                      <td className="py-4 pr-4 text-white font-medium">
-                        ${user.totalInvested.toLocaleString()}
-                      </td>
-                      <td className="py-4 text-green-400 font-semibold">
-                        +${user.earnings.toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="py-4 pr-4 text-gray-400">
+                          {new Date(refUser.joinedAt || refUser.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="py-4 pr-4 text-white font-medium">
+                          ${(refUser.totalInvested || refUser.totalDeposits || 0).toLocaleString()}
+                        </td>
+                        <td className="py-4 text-green-400 font-semibold">
+                          +${(refUser.earnings || refUser.referralEarnings || 0).toLocaleString()}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

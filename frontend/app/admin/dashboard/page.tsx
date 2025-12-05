@@ -62,40 +62,34 @@ const stagger = {
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState({
-    totalUsers: 1250,
-    activeUsers: 890,
-    newUsersToday: 45,
-    newUsersThisWeek: 312,
-    totalDeposits: 2500000,
-    pendingDeposits: 125000,
-    depositsToday: 85000,
-    totalWithdrawals: 1800000,
-    pendingWithdrawals: 85000,
-    withdrawalsToday: 45000,
-    totalInvestments: 5600000,
-    activeInvestments: 450,
-    pendingKYC: 28,
-    approvedKYC: 890,
-    rejectedKYC: 15,
-    revenue: 450000,
-    revenueGrowth: 12.5,
-    profitsPaid: 320000,
-    referralsPaid: 45000,
+    totalUsers: 0,
+    activeUsers: 0,
+    newUsersToday: 0,
+    newUsersThisWeek: 0,
+    totalDeposits: 0,
+    pendingDeposits: 0,
+    depositsToday: 0,
+    totalWithdrawals: 0,
+    pendingWithdrawals: 0,
+    withdrawalsToday: 0,
+    totalInvestments: 0,
+    activeInvestments: 0,
+    pendingKYC: 0,
+    approvedKYC: 0,
+    rejectedKYC: 0,
+    revenue: 0,
+    revenueGrowth: 0,
+    profitsPaid: 0,
+    referralsPaid: 0,
   });
 
-  const [recentActivity, setRecentActivity] = useState([
-    { id: 1, type: 'deposit', user: 'John D.', email: 'j***@email.com', amount: 5000, status: 'pending', time: '2 min ago' },
-    { id: 2, type: 'withdrawal', user: 'Sarah M.', email: 's***@email.com', amount: 2500, status: 'pending', time: '5 min ago' },
-    { id: 3, type: 'kyc', user: 'Mike R.', email: 'm***@email.com', status: 'pending', time: '10 min ago' },
-    { id: 4, type: 'deposit', user: 'Emily K.', email: 'e***@email.com', amount: 10000, status: 'approved', time: '15 min ago' },
-    { id: 5, type: 'investment', user: 'David L.', email: 'd***@email.com', amount: 25000, plan: 'Professional', time: '20 min ago' },
-    { id: 6, type: 'registration', user: 'Anna T.', email: 'a***@email.com', referrer: 'John D.', time: '25 min ago' },
-  ]);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [pendingActions, setPendingActions] = useState({
-    deposits: 12,
-    withdrawals: 8,
-    kyc: 28,
+    deposits: 0,
+    withdrawals: 0,
+    kyc: 0,
   });
 
   const [systemStatus, setSystemStatus] = useState({
@@ -107,23 +101,125 @@ export default function AdminDashboardPage() {
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Chart data for revenue
-  const revenueData = [35, 48, 42, 55, 62, 58, 72, 68, 80, 75, 85, 92];
-  const usersData = [120, 145, 180, 195, 220, 280, 310, 345, 390, 420, 480, 520];
+  // Chart data - will be populated from API in future
+  const [revenueData, setRevenueData] = useState<number[]>([]);
+  const [usersData, setUsersData] = useState<number[]>([]);
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
   const fetchDashboardData = async () => {
+    setIsLoading(true);
     try {
       const response = await adminAPI.getDashboard();
-      if (response.data?.data) {
+      if (response.data) {
+        const data = response.data.stats || response.data;
+        
         // Update stats from API
+        setStats({
+          totalUsers: data.users?.total || 0,
+          activeUsers: data.users?.active || 0,
+          newUsersToday: data.users?.newToday || 0,
+          newUsersThisWeek: data.users?.newThisWeek || 0,
+          totalDeposits: data.transactions?.totalDeposited || 0,
+          pendingDeposits: data.transactions?.pendingDeposits || 0,
+          depositsToday: data.transactions?.depositsToday || 0,
+          totalWithdrawals: data.transactions?.totalWithdrawn || 0,
+          pendingWithdrawals: data.transactions?.pendingWithdrawals || 0,
+          withdrawalsToday: data.transactions?.withdrawalsToday || 0,
+          totalInvestments: data.investments?.totalValue || 0,
+          activeInvestments: data.investments?.active || 0,
+          pendingKYC: data.users?.pendingKyc || 0,
+          approvedKYC: data.users?.approvedKyc || 0,
+          rejectedKYC: data.users?.rejectedKyc || 0,
+          revenue: data.revenue?.total || 0,
+          revenueGrowth: data.revenue?.growth || 0,
+          profitsPaid: data.profitsPaid || 0,
+          referralsPaid: data.referralsPaid || 0,
+        });
+
+        // Update pending actions
+        setPendingActions({
+          deposits: data.transactions?.pendingDeposits || 0,
+          withdrawals: data.transactions?.pendingWithdrawals || 0,
+          kyc: data.users?.pendingKyc || 0,
+        });
+
+        // Format recent activity from deposits and withdrawals
+        const activity: any[] = [];
+        
+        if (response.data.recentActivity?.deposits) {
+          response.data.recentActivity.deposits.forEach((d: any, i: number) => {
+            activity.push({
+              id: `dep-${i}`,
+              type: 'deposit',
+              user: d.userId ? `${d.userId.firstName || ''} ${d.userId.lastName || ''}`.trim() || 'User' : 'User',
+              email: d.userId?.email ? `${d.userId.email.slice(0, 2)}***@${d.userId.email.split('@')[1]}` : 'N/A',
+              amount: d.amount || 0,
+              status: d.status || 'pending',
+              time: formatTimeAgo(d.createdAt),
+            });
+          });
+        }
+
+        if (response.data.recentActivity?.withdrawals) {
+          response.data.recentActivity.withdrawals.forEach((w: any, i: number) => {
+            activity.push({
+              id: `wit-${i}`,
+              type: 'withdrawal',
+              user: w.userId ? `${w.userId.firstName || ''} ${w.userId.lastName || ''}`.trim() || 'User' : 'User',
+              email: w.userId?.email ? `${w.userId.email.slice(0, 2)}***@${w.userId.email.split('@')[1]}` : 'N/A',
+              amount: w.amount || 0,
+              status: w.status || 'pending',
+              time: formatTimeAgo(w.createdAt),
+            });
+          });
+        }
+
+        // Sort by time (most recent first)
+        activity.sort((a, b) => {
+          const timeA = parseTimeAgo(a.time);
+          const timeB = parseTimeAgo(b.time);
+          return timeA - timeB;
+        });
+
+        setRecentActivity(activity.slice(0, 10));
       }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
+      toast.error('Failed to load dashboard data');
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  // Helper to format time ago
+  const formatTimeAgo = (dateString: string) => {
+    if (!dateString) return 'Unknown';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  };
+
+  // Helper to parse time ago for sorting
+  const parseTimeAgo = (timeAgo: string) => {
+    if (timeAgo === 'Just now') return 0;
+    const match = timeAgo.match(/(\d+)/);
+    if (!match) return Infinity;
+    const num = parseInt(match[1]);
+    if (timeAgo.includes('min')) return num;
+    if (timeAgo.includes('hour')) return num * 60;
+    if (timeAgo.includes('day')) return num * 1440;
+    return Infinity;
   };
 
   const handleRefresh = async () => {
@@ -360,46 +456,61 @@ export default function AdminDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-white">Revenue Overview</h3>
-                <p className="text-sm text-gray-500">Monthly revenue trend</p>
+                <p className="text-sm text-gray-500">Total platform revenue</p>
               </div>
-              <div className="flex items-center gap-4 text-sm">
-                <span className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-primary-500"></span>
-                  Revenue
-                </span>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-primary-400">${stats.revenue.toLocaleString()}</p>
+                <p className="text-xs text-gray-500">All time</p>
               </div>
             </div>
           </div>
           <div className="p-6">
-            <div className="h-48 flex items-end justify-between gap-2">
-              {revenueData.map((value, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ height: 0 }}
-                  animate={{ height: `${value}%` }}
-                  transition={{ delay: index * 0.05, duration: 0.5 }}
-                  className="flex-1 bg-gradient-to-t from-primary-500/30 to-primary-500 rounded-t-sm hover:from-primary-500/50 hover:to-primary-400 transition-colors cursor-pointer group relative"
-                >
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-dark-700 rounded text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    ${(value * 5).toFixed(0)}K
+            {stats.totalDeposits > 0 ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-dark-700/50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                      <ArrowDownRight className="text-green-500" size={20} />
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">Total Deposits</p>
+                      <p className="text-xs text-gray-500">All time deposits</p>
+                    </div>
                   </div>
-                </motion.div>
-              ))}
-            </div>
-            <div className="flex justify-between mt-4 text-xs text-gray-500">
-              <span>Jan</span>
-              <span>Feb</span>
-              <span>Mar</span>
-              <span>Apr</span>
-              <span>May</span>
-              <span>Jun</span>
-              <span>Jul</span>
-              <span>Aug</span>
-              <span>Sep</span>
-              <span>Oct</span>
-              <span>Nov</span>
-              <span>Dec</span>
-            </div>
+                  <p className="text-xl font-bold text-green-400">${stats.totalDeposits.toLocaleString()}</p>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-dark-700/50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center">
+                      <ArrowUpRight className="text-red-500" size={20} />
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">Total Withdrawals</p>
+                      <p className="text-xs text-gray-500">All time withdrawals</p>
+                    </div>
+                  </div>
+                  <p className="text-xl font-bold text-red-400">${stats.totalWithdrawals.toLocaleString()}</p>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-dark-700/50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary-500/20 flex items-center justify-center">
+                      <TrendingUp className="text-primary-500" size={20} />
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">Net Revenue</p>
+                      <p className="text-xs text-gray-500">Deposits - Withdrawals</p>
+                    </div>
+                  </div>
+                  <p className="text-xl font-bold text-primary-400">${(stats.totalDeposits - stats.totalWithdrawals).toLocaleString()}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="h-48 flex flex-col items-center justify-center text-gray-500">
+                <BarChart3 size={48} className="mb-3 opacity-50" />
+                <p className="text-sm">No revenue data yet</p>
+                <p className="text-xs">Data will appear as users make deposits</p>
+              </div>
+            )}
           </div>
         </Card>
 
@@ -408,54 +519,68 @@ export default function AdminDashboardPage() {
           <div className="p-6 border-b border-dark-700">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-white">User Growth</h3>
-                <p className="text-sm text-gray-500">Monthly registrations</p>
+                <h3 className="text-lg font-semibold text-white">User Statistics</h3>
+                <p className="text-sm text-gray-500">Platform user breakdown</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-white">{stats.newUsersThisWeek}</p>
-                <p className="text-xs text-green-400">+24% this week</p>
+                <p className="text-2xl font-bold text-white">{stats.totalUsers}</p>
+                <p className="text-xs text-gray-500">Total users</p>
               </div>
             </div>
           </div>
           <div className="p-6">
-            <div className="h-48 flex items-end justify-between gap-2">
-              {usersData.map((value, index) => {
-                const maxValue = Math.max(...usersData);
-                const height = (value / maxValue) * 100;
-                return (
-                  <motion.div
-                    key={index}
-                    initial={{ height: 0 }}
-                    animate={{ height: `${height}%` }}
-                    transition={{ delay: index * 0.05, duration: 0.5 }}
-                    className="flex-1 bg-gradient-to-t from-blue-500/30 to-blue-500 rounded-t-sm hover:from-blue-500/50 hover:to-blue-400 transition-colors cursor-pointer group relative"
-                  >
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-dark-700 rounded text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                      {value}
+            {stats.totalUsers > 0 ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-dark-700/50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                      <CheckCircle className="text-green-500" size={20} />
                     </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-            <div className="flex justify-between mt-4 text-xs text-gray-500">
-              <span>Jan</span>
-              <span>Feb</span>
-              <span>Mar</span>
-              <span>Apr</span>
-              <span>May</span>
-              <span>Jun</span>
-              <span>Jul</span>
-              <span>Aug</span>
-              <span>Sep</span>
-              <span>Oct</span>
-              <span>Nov</span>
-              <span>Dec</span>
-            </div>
+                    <div>
+                      <p className="text-white font-medium">Active Users</p>
+                      <p className="text-xs text-gray-500">Verified and active</p>
+                    </div>
+                  </div>
+                  <p className="text-xl font-bold text-green-400">{stats.activeUsers}</p>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-dark-700/50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center">
+                      <Clock className="text-yellow-500" size={20} />
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">Pending KYC</p>
+                      <p className="text-xs text-gray-500">Awaiting verification</p>
+                    </div>
+                  </div>
+                  <p className="text-xl font-bold text-yellow-400">{stats.pendingKYC}</p>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-dark-700/50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                      <Shield className="text-blue-500" size={20} />
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">KYC Approved</p>
+                      <p className="text-xs text-gray-500">Verified accounts</p>
+                    </div>
+                  </div>
+                  <p className="text-xl font-bold text-blue-400">{stats.approvedKYC}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="h-48 flex flex-col items-center justify-center text-gray-500">
+                <Users size={48} className="mb-3 opacity-50" />
+                <p className="text-sm">No users yet</p>
+                <p className="text-xs">Users will appear as they register</p>
+              </div>
+            )}
           </div>
         </Card>
       </motion.div>
 
-      {/* Secondary Stats */}
+      {/* Secondary Stats - Only show if there's data */}
+      {stats.totalUsers > 0 && (
       <motion.div variants={fadeInUp} className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         <Card className="p-4">
           <div className="flex items-center gap-3">
@@ -476,7 +601,7 @@ export default function AdminDashboardPage() {
             </div>
             <div>
               <p className="text-xs text-gray-500">Profits Paid</p>
-              <p className="text-lg font-bold text-white">${(stats.profitsPaid / 1000).toFixed(0)}K</p>
+              <p className="text-lg font-bold text-white">${stats.profitsPaid.toLocaleString()}</p>
             </div>
           </div>
         </Card>
@@ -512,7 +637,7 @@ export default function AdminDashboardPage() {
             </div>
             <div>
               <p className="text-xs text-gray-500">Referrals Paid</p>
-              <p className="text-lg font-bold text-white">${(stats.referralsPaid / 1000).toFixed(0)}K</p>
+              <p className="text-lg font-bold text-white">${stats.referralsPaid.toLocaleString()}</p>
             </div>
           </div>
         </Card>
@@ -529,6 +654,7 @@ export default function AdminDashboardPage() {
           </div>
         </Card>
       </motion.div>
+      )}
 
       {/* Main Content Grid */}
       <div className="grid lg:grid-cols-3 gap-6">
@@ -546,47 +672,61 @@ export default function AdminDashboardPage() {
               </div>
             </CardHeader>
 
-            <div className="space-y-3">
-              {recentActivity.map((activity, index) => (
-                <motion.div
-                  key={activity.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="flex items-center justify-between p-4 bg-dark-700/30 rounded-xl hover:bg-dark-700/50 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-dark-600 flex items-center justify-center">
-                      {getActivityIcon(activity.type)}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="text-white font-medium capitalize">{activity.type}</p>
-                        {activity.status && getStatusBadge(activity.status)}
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : recentActivity.length > 0 ? (
+              <div className="space-y-3">
+                {recentActivity.map((activity, index) => (
+                  <motion.div
+                    key={activity.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="flex items-center justify-between p-4 bg-dark-700/30 rounded-xl hover:bg-dark-700/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-dark-600 flex items-center justify-center">
+                        {getActivityIcon(activity.type)}
                       </div>
-                      <p className="text-sm text-gray-500">
-                        {activity.user} • {activity.email}
-                        {activity.amount && ` • $${activity.amount.toLocaleString()}`}
-                        {activity.plan && ` • ${activity.plan}`}
-                        {activity.referrer && ` • Ref: ${activity.referrer}`}
-                      </p>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-white font-medium capitalize">{activity.type}</p>
+                          {activity.status && getStatusBadge(activity.status)}
+                        </div>
+                        <p className="text-sm text-gray-500">
+                          {activity.user} • {activity.email}
+                          {activity.amount && ` • $${activity.amount.toLocaleString()}`}
+                          {activity.plan && ` • ${activity.plan}`}
+                          {activity.referrer && ` • Ref: ${activity.referrer}`}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-gray-500">{activity.time}</span>
-                    <button className="p-2 text-gray-400 hover:text-white hover:bg-dark-600 rounded-lg transition-colors">
-                      <Eye size={16} />
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-gray-500">{activity.time}</span>
+                      <button className="p-2 text-gray-400 hover:text-white hover:bg-dark-600 rounded-lg transition-colors">
+                        <Eye size={16} />
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                <Activity size={48} className="mb-3 opacity-50" />
+                <p className="text-sm">No recent activity</p>
+                <p className="text-xs">Activity will appear as users interact</p>
+              </div>
+            )}
 
+            {recentActivity.length > 0 && (
             <div className="mt-4 pt-4 border-t border-dark-700">
               <Link href="/admin/dashboard/logs" className="text-primary-400 hover:text-primary-300 text-sm flex items-center justify-center gap-1">
                 View All Activity <ChevronRight size={16} />
               </Link>
             </div>
+            )}
           </Card>
         </motion.div>
 

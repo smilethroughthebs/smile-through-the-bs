@@ -22,6 +22,7 @@ import { AdminModule } from './admin/admin.module';
 import { ReferralModule } from './referral/referral.module';
 import { CronModule } from './cron/cron.module';
 import { MarketModule } from './market/market.module';
+import { DatabaseModule } from './database/database.module';
 
 // Middleware
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
@@ -70,6 +71,7 @@ import { SecurityMiddleware } from './common/middleware/security.middleware';
     ReferralModule,
     CronModule,
     MarketModule,
+    DatabaseModule,
   ],
 })
 export class AppModule implements NestModule {

@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
+import { adminAPI } from '@/app/lib/api';
 import toast from 'react-hot-toast';
 
 const fadeInUp = {
@@ -40,6 +41,12 @@ export default function AdminWithdrawalsPage() {
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    pages: 1,
+  });
   const [filters, setFilters] = useState({
     search: '',
     status: '',
@@ -48,54 +55,29 @@ export default function AdminWithdrawalsPage() {
 
   useEffect(() => {
     fetchWithdrawals();
-  }, [filters]);
+  }, [filters, pagination.page]);
 
   const fetchWithdrawals = async () => {
     setIsLoading(true);
     try {
-      // Mock data
-      setWithdrawals([
-        {
-          _id: '1',
-          withdrawalRef: 'WD-001',
-          user: { firstName: 'John', lastName: 'Doe', email: 'john@email.com', kycStatus: 'verified' },
-          amount: 2500,
-          fee: 25,
-          netAmount: 2475,
-          method: 'bitcoin',
-          walletAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-          status: 'pending',
-          createdAt: '2024-02-01T10:30:00',
-        },
-        {
-          _id: '2',
-          withdrawalRef: 'WD-002',
-          user: { firstName: 'Sarah', lastName: 'Miller', email: 'sarah@email.com', kycStatus: 'verified' },
-          amount: 5000,
-          fee: 50,
-          netAmount: 4950,
-          method: 'bank_transfer',
-          bankName: 'Chase Bank',
-          accountNumber: '****4567',
-          routingNumber: '****8901',
-          status: 'pending',
-          createdAt: '2024-02-01T11:00:00',
-        },
-        {
-          _id: '3',
-          withdrawalRef: 'WD-003',
-          user: { firstName: 'Mike', lastName: 'Roberts', email: 'mike@email.com', kycStatus: 'pending' },
-          amount: 1000,
-          fee: 10,
-          netAmount: 990,
-          method: 'ethereum',
-          walletAddress: '0x742d35Cc6634C0532925a3b844Bc9e7595f8...',
-          status: 'pending',
-          createdAt: '2024-02-01T09:00:00',
-        },
-      ]);
+      const response = await adminAPI.getWithdrawals({
+        page: pagination.page,
+        limit: pagination.limit,
+        status: filters.status || undefined,
+      });
+      
+      if (response.data) {
+        const data = response.data.data || response.data;
+        setWithdrawals(data.data || data || []);
+        setPagination(prev => ({
+          ...prev,
+          total: data.pagination?.total || data.length || 0,
+          pages: data.pagination?.pages || 1,
+        }));
+      }
     } catch (error) {
       console.error('Failed to fetch withdrawals:', error);
+      setWithdrawals([]);
     } finally {
       setIsLoading(false);
     }
@@ -103,6 +85,7 @@ export default function AdminWithdrawalsPage() {
 
   const handleApprove = async (withdrawalId: string) => {
     try {
+      await adminAPI.approveWithdrawal(withdrawalId);
       toast.success('Withdrawal approved and processed');
       setShowModal(false);
       fetchWithdrawals();
@@ -117,6 +100,7 @@ export default function AdminWithdrawalsPage() {
       return;
     }
     try {
+      await adminAPI.rejectWithdrawal(withdrawalId, { reason: rejectReason });
       toast.success('Withdrawal rejected');
       setShowModal(false);
       setRejectReason('');
@@ -168,7 +152,7 @@ export default function AdminWithdrawalsPage() {
         </div>
       </motion.div>
 
-      {/* Stats */}
+      {/* Stats - computed from actual data */}
       <motion.div variants={fadeInUp} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <div className="flex items-center gap-3">
@@ -177,7 +161,9 @@ export default function AdminWithdrawalsPage() {
             </div>
             <div>
               <p className="text-sm text-gray-400">Pending</p>
-              <p className="text-xl font-bold text-white">8</p>
+              <p className="text-xl font-bold text-white">
+                {withdrawals.filter(w => w.status === 'pending').length}
+              </p>
             </div>
           </div>
         </Card>
@@ -187,8 +173,10 @@ export default function AdminWithdrawalsPage() {
               <CheckCircle className="text-green-500" size={20} />
             </div>
             <div>
-              <p className="text-sm text-gray-400">Processed Today</p>
-              <p className="text-xl font-bold text-white">15</p>
+              <p className="text-sm text-gray-400">Approved</p>
+              <p className="text-xl font-bold text-white">
+                {withdrawals.filter(w => w.status === 'approved' || w.status === 'completed').length}
+              </p>
             </div>
           </div>
         </Card>
@@ -198,8 +186,10 @@ export default function AdminWithdrawalsPage() {
               <XCircle className="text-red-500" size={20} />
             </div>
             <div>
-              <p className="text-sm text-gray-400">Rejected Today</p>
-              <p className="text-xl font-bold text-white">2</p>
+              <p className="text-sm text-gray-400">Rejected</p>
+              <p className="text-xl font-bold text-white">
+                {withdrawals.filter(w => w.status === 'rejected').length}
+              </p>
             </div>
           </div>
         </Card>
@@ -209,8 +199,10 @@ export default function AdminWithdrawalsPage() {
               <ArrowUpRight className="text-red-500" size={20} />
             </div>
             <div>
-              <p className="text-sm text-gray-400">Pending Amount</p>
-              <p className="text-xl font-bold text-red-400">$85,000</p>
+              <p className="text-sm text-gray-400">Total Amount</p>
+              <p className="text-xl font-bold text-red-400">
+                ${withdrawals.reduce((sum, w) => sum + (w.amount || 0), 0).toLocaleString()}
+              </p>
             </div>
           </div>
         </Card>
@@ -270,7 +262,7 @@ export default function AdminWithdrawalsPage() {
             <div className="flex items-center justify-center py-12">
               <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
             </div>
-          ) : (
+          ) : withdrawals.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -293,20 +285,20 @@ export default function AdminWithdrawalsPage() {
                       <td className="py-4 pr-4">
                         <div className="flex items-center gap-2">
                           <div>
-                            <p className="text-white">{withdrawal.user.firstName} {withdrawal.user.lastName}</p>
-                            <p className="text-sm text-gray-500">{withdrawal.user.email}</p>
+                            <p className="text-white">{withdrawal.userId?.firstName || 'User'} {withdrawal.userId?.lastName || ''}</p>
+                            <p className="text-sm text-gray-500">{withdrawal.userId?.email || 'N/A'}</p>
                           </div>
-                          {withdrawal.user.kycStatus !== 'verified' && (
-                            <AlertTriangle className="text-yellow-500" size={16} />
+                          {withdrawal.userId?.kycStatus !== 'approved' && (
+                            <AlertTriangle className="text-yellow-500" size={16} title="KYC not verified" />
                           )}
                         </div>
                       </td>
                       <td className="py-4 pr-4">
-                        <p className="text-white font-semibold">${withdrawal.amount.toLocaleString()}</p>
-                        <p className="text-xs text-gray-500">Fee: ${withdrawal.fee}</p>
+                        <p className="text-white font-semibold">${(withdrawal.amount || 0).toLocaleString()}</p>
+                        <p className="text-xs text-gray-500">Fee: ${withdrawal.fee || 0}</p>
                       </td>
                       <td className="py-4 pr-4">
-                        <span className="text-gray-400">{getMethodLabel(withdrawal.method)}</span>
+                        <span className="text-gray-400">{getMethodLabel(withdrawal.paymentMethod || withdrawal.method)}</span>
                       </td>
                       <td className="py-4 pr-4">{getStatusBadge(withdrawal.status)}</td>
                       <td className="py-4 pr-4 text-gray-400">
@@ -342,6 +334,12 @@ export default function AdminWithdrawalsPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+              <ArrowUpRight size={48} className="mb-3 opacity-50" />
+              <p className="text-sm">No withdrawals found</p>
+              <p className="text-xs">Withdrawals will appear here as users request them</p>
             </div>
           )}
         </Card>

@@ -173,38 +173,13 @@ export default function SupportPage() {
 
   const fetchTickets = async () => {
     try {
+      // Tickets will be loaded from API when implemented
       // const response = await supportAPI.getTickets();
-      // setTickets(response.data.data);
-      
-      // Mock data
-      setTickets([
-        {
-          id: 'TKT-001',
-          category: 'Deposits & Withdrawals',
-          subject: 'Deposit not showing',
-          status: 'in_progress',
-          createdAt: '2024-02-01T10:30:00',
-          lastReply: '2024-02-01T14:45:00',
-          messages: [
-            { sender: 'user', message: 'I made a deposit 2 hours ago but it\'s not showing in my wallet.', time: '2024-02-01T10:30:00' },
-            { sender: 'support', message: 'Thank you for reaching out. Can you please provide the transaction ID?', time: '2024-02-01T14:45:00' },
-          ],
-        },
-        {
-          id: 'TKT-002',
-          category: 'Account Issues',
-          subject: 'Cannot enable 2FA',
-          status: 'resolved',
-          createdAt: '2024-01-28T09:00:00',
-          lastReply: '2024-01-28T16:30:00',
-          messages: [
-            { sender: 'user', message: 'I\'m trying to enable 2FA but getting an error.', time: '2024-01-28T09:00:00' },
-            { sender: 'support', message: 'We\'ve fixed the issue. Please try again.', time: '2024-01-28T16:30:00' },
-          ],
-        },
-      ]);
+      // setTickets(response.data.data || []);
+      setTickets([]);
     } catch (error) {
       console.error('Failed to fetch tickets:', error);
+      setTickets([]);
     }
   };
 

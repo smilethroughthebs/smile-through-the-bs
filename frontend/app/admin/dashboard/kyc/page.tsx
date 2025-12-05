@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
+import { adminAPI } from '@/app/lib/api';
 import toast from 'react-hot-toast';
 
 const fadeInUp = {
@@ -41,6 +42,12 @@ export default function AdminKYCPage() {
   const [showModal, setShowModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [viewingImage, setViewingImage] = useState<string | null>(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    pages: 1,
+  });
   const [filters, setFilters] = useState({
     search: '',
     status: '',
@@ -49,51 +56,29 @@ export default function AdminKYCPage() {
 
   useEffect(() => {
     fetchKYCRequests();
-  }, [filters]);
+  }, [filters, pagination.page]);
 
   const fetchKYCRequests = async () => {
     setIsLoading(true);
     try {
-      // Mock data
-      setKycRequests([
-        {
-          _id: '1',
-          user: { firstName: 'John', lastName: 'Doe', email: 'john@email.com' },
-          documentType: 'passport',
-          frontImage: 'https://via.placeholder.com/400x300?text=Passport+Front',
-          backImage: 'https://via.placeholder.com/400x300?text=Passport+Back',
-          selfieImage: 'https://via.placeholder.com/400x300?text=Selfie',
-          addressDocument: 'https://via.placeholder.com/400x300?text=Address+Proof',
-          status: 'pending',
-          submittedAt: '2024-02-01T10:30:00',
-        },
-        {
-          _id: '2',
-          user: { firstName: 'Sarah', lastName: 'Miller', email: 'sarah@email.com' },
-          documentType: 'national_id',
-          frontImage: 'https://via.placeholder.com/400x300?text=ID+Front',
-          backImage: 'https://via.placeholder.com/400x300?text=ID+Back',
-          selfieImage: 'https://via.placeholder.com/400x300?text=Selfie',
-          addressDocument: 'https://via.placeholder.com/400x300?text=Utility+Bill',
-          status: 'pending',
-          submittedAt: '2024-02-01T09:00:00',
-        },
-        {
-          _id: '3',
-          user: { firstName: 'Mike', lastName: 'Roberts', email: 'mike@email.com' },
-          documentType: 'drivers_license',
-          frontImage: 'https://via.placeholder.com/400x300?text=License+Front',
-          backImage: 'https://via.placeholder.com/400x300?text=License+Back',
-          selfieImage: 'https://via.placeholder.com/400x300?text=Selfie',
-          addressDocument: null,
-          status: 'rejected',
-          rejectionReason: 'Document image is blurry',
-          submittedAt: '2024-01-30T14:00:00',
-          reviewedAt: '2024-01-31T10:00:00',
-        },
-      ]);
+      const response = await adminAPI.getPendingKyc({
+        page: pagination.page,
+        limit: pagination.limit,
+        status: filters.status || undefined,
+      });
+      
+      if (response.data) {
+        const data = response.data.data || response.data;
+        setKycRequests(data.data || data || []);
+        setPagination(prev => ({
+          ...prev,
+          total: data.pagination?.total || data.length || 0,
+          pages: data.pagination?.pages || 1,
+        }));
+      }
     } catch (error) {
       console.error('Failed to fetch KYC requests:', error);
+      setKycRequests([]);
     } finally {
       setIsLoading(false);
     }
@@ -101,6 +86,7 @@ export default function AdminKYCPage() {
 
   const handleApprove = async (kycId: string) => {
     try {
+      await adminAPI.approveKyc(kycId);
       toast.success('KYC approved successfully');
       setShowModal(false);
       fetchKYCRequests();
@@ -115,6 +101,7 @@ export default function AdminKYCPage() {
       return;
     }
     try {
+      await adminAPI.rejectKyc(kycId, { reason: rejectReason });
       toast.success('KYC rejected');
       setShowModal(false);
       setRejectReason('');
@@ -159,7 +146,7 @@ export default function AdminKYCPage() {
         </div>
       </motion.div>
 
-      {/* Stats */}
+      {/* Stats - computed from actual data */}
       <motion.div variants={fadeInUp} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <div className="flex items-center gap-3">
@@ -168,7 +155,9 @@ export default function AdminKYCPage() {
             </div>
             <div>
               <p className="text-sm text-gray-400">Pending</p>
-              <p className="text-xl font-bold text-white">28</p>
+              <p className="text-xl font-bold text-white">
+                {kycRequests.filter(k => k.status === 'pending').length}
+              </p>
             </div>
           </div>
         </Card>
@@ -178,8 +167,10 @@ export default function AdminKYCPage() {
               <CheckCircle className="text-green-500" size={20} />
             </div>
             <div>
-              <p className="text-sm text-gray-400">Verified Today</p>
-              <p className="text-xl font-bold text-white">12</p>
+              <p className="text-sm text-gray-400">Verified</p>
+              <p className="text-xl font-bold text-white">
+                {kycRequests.filter(k => k.status === 'verified' || k.status === 'approved').length}
+              </p>
             </div>
           </div>
         </Card>
@@ -189,8 +180,10 @@ export default function AdminKYCPage() {
               <XCircle className="text-red-500" size={20} />
             </div>
             <div>
-              <p className="text-sm text-gray-400">Rejected Today</p>
-              <p className="text-xl font-bold text-white">5</p>
+              <p className="text-sm text-gray-400">Rejected</p>
+              <p className="text-xl font-bold text-white">
+                {kycRequests.filter(k => k.status === 'rejected').length}
+              </p>
             </div>
           </div>
         </Card>
@@ -200,8 +193,8 @@ export default function AdminKYCPage() {
               <Shield className="text-primary-500" size={20} />
             </div>
             <div>
-              <p className="text-sm text-gray-400">Total Verified</p>
-              <p className="text-xl font-bold text-white">856</p>
+              <p className="text-sm text-gray-400">Total Requests</p>
+              <p className="text-xl font-bold text-white">{kycRequests.length}</p>
             </div>
           </div>
         </Card>
@@ -259,7 +252,7 @@ export default function AdminKYCPage() {
             <div className="flex items-center justify-center py-12">
               <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
             </div>
-          ) : (
+          ) : kycRequests.length > 0 ? (
             <div className="space-y-4">
               {kycRequests.map((kyc) => (
                 <div
@@ -269,16 +262,16 @@ export default function AdminKYCPage() {
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-semibold">
-                        {kyc.user.firstName[0]}{kyc.user.lastName[0]}
+                        {(kyc.userId?.firstName || kyc.user?.firstName || 'U')[0]}{(kyc.userId?.lastName || kyc.user?.lastName || '')[0]}
                       </div>
                       <div>
-                        <h4 className="text-white font-medium">{kyc.user.firstName} {kyc.user.lastName}</h4>
-                        <p className="text-sm text-gray-500">{kyc.user.email}</p>
+                        <h4 className="text-white font-medium">{kyc.userId?.firstName || kyc.user?.firstName || 'User'} {kyc.userId?.lastName || kyc.user?.lastName || ''}</h4>
+                        <p className="text-sm text-gray-500">{kyc.userId?.email || kyc.user?.email || 'N/A'}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-gray-400">{getDocumentTypeLabel(kyc.documentType)}</span>
                           <span className="text-xs text-gray-600">•</span>
                           <span className="text-xs text-gray-400">
-                            {new Date(kyc.submittedAt).toLocaleDateString()}
+                            {new Date(kyc.submittedAt || kyc.createdAt).toLocaleDateString()}
                           </span>
                         </div>
                       </div>
@@ -305,6 +298,12 @@ export default function AdminKYCPage() {
                   )}
                 </div>
               ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+              <Shield size={48} className="mb-3 opacity-50" />
+              <p className="text-sm">No KYC requests found</p>
+              <p className="text-xs">KYC requests will appear here as users submit them</p>
             </div>
           )}
         </Card>

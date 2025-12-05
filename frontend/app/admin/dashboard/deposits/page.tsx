@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle } from '@/app/components/ui/Card';
 import Button from '@/app/components/ui/Button';
+import { adminAPI } from '@/app/lib/api';
 import toast from 'react-hot-toast';
 
 const fadeInUp = {
@@ -59,49 +60,24 @@ export default function AdminDepositsPage() {
   const fetchDeposits = async () => {
     setIsLoading(true);
     try {
-      // Mock data
-      setDeposits([
-        {
-          _id: '1',
-          depositRef: 'DEP-001',
-          user: { firstName: 'John', lastName: 'Doe', email: 'john@email.com' },
-          amount: 5000,
-          method: 'bitcoin',
-          walletAddress: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-          txHash: '0x1234567890abcdef...',
-          status: 'pending',
-          createdAt: '2024-02-01T10:30:00',
-          proofUrl: 'https://example.com/proof.jpg',
-        },
-        {
-          _id: '2',
-          depositRef: 'DEP-002',
-          user: { firstName: 'Sarah', lastName: 'Miller', email: 'sarah@email.com' },
-          amount: 2500,
-          method: 'ethereum',
-          walletAddress: '0x742d35Cc6634C0532925a3b844Bc9e7595f8...',
-          txHash: '0xabcdef1234567890...',
-          status: 'pending',
-          createdAt: '2024-02-01T11:00:00',
-          proofUrl: null,
-        },
-        {
-          _id: '3',
-          depositRef: 'DEP-003',
-          user: { firstName: 'Mike', lastName: 'Roberts', email: 'mike@email.com' },
-          amount: 10000,
-          method: 'bank_transfer',
-          bankName: 'Chase Bank',
-          accountNumber: '****4567',
-          status: 'approved',
-          createdAt: '2024-02-01T09:00:00',
-          approvedAt: '2024-02-01T12:00:00',
-          approvedBy: 'Admin',
-        },
-      ]);
-      setPagination(prev => ({ ...prev, total: 3, pages: 1 }));
+      const response = await adminAPI.getDeposits({
+        page: pagination.page,
+        limit: pagination.limit,
+        status: filters.status || undefined,
+      });
+      
+      if (response.data) {
+        const data = response.data.data || response.data;
+        setDeposits(data.data || data || []);
+        setPagination(prev => ({
+          ...prev,
+          total: data.pagination?.total || data.length || 0,
+          pages: data.pagination?.pages || 1,
+        }));
+      }
     } catch (error) {
       console.error('Failed to fetch deposits:', error);
+      setDeposits([]);
     } finally {
       setIsLoading(false);
     }
@@ -109,9 +85,10 @@ export default function AdminDepositsPage() {
 
   const handleApprove = async (depositId: string) => {
     try {
+      await adminAPI.approveDeposit(depositId);
       toast.success('Deposit approved successfully');
-      setShowModal(false);
       fetchDeposits();
+      setShowModal(false);
     } catch (error) {
       toast.error('Failed to approve deposit');
     }
@@ -119,9 +96,10 @@ export default function AdminDepositsPage() {
 
   const handleReject = async (depositId: string, reason: string) => {
     try {
+      await adminAPI.rejectDeposit(depositId, { reason });
       toast.success('Deposit rejected');
-      setShowModal(false);
       fetchDeposits();
+      setShowModal(false);
     } catch (error) {
       toast.error('Failed to reject deposit');
     }
@@ -168,7 +146,7 @@ export default function AdminDepositsPage() {
         </div>
       </motion.div>
 
-      {/* Stats */}
+      {/* Stats - computed from deposits */}
       <motion.div variants={fadeInUp} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <div className="flex items-center gap-3">
@@ -177,7 +155,9 @@ export default function AdminDepositsPage() {
             </div>
             <div>
               <p className="text-sm text-gray-400">Pending</p>
-              <p className="text-xl font-bold text-white">12</p>
+              <p className="text-xl font-bold text-white">
+                {deposits.filter(d => d.status === 'pending').length}
+              </p>
             </div>
           </div>
         </Card>
@@ -187,8 +167,10 @@ export default function AdminDepositsPage() {
               <CheckCircle className="text-green-500" size={20} />
             </div>
             <div>
-              <p className="text-sm text-gray-400">Approved Today</p>
-              <p className="text-xl font-bold text-white">28</p>
+              <p className="text-sm text-gray-400">Approved</p>
+              <p className="text-xl font-bold text-white">
+                {deposits.filter(d => d.status === 'approved' || d.status === 'completed').length}
+              </p>
             </div>
           </div>
         </Card>
@@ -198,8 +180,10 @@ export default function AdminDepositsPage() {
               <XCircle className="text-red-500" size={20} />
             </div>
             <div>
-              <p className="text-sm text-gray-400">Rejected Today</p>
-              <p className="text-xl font-bold text-white">3</p>
+              <p className="text-sm text-gray-400">Rejected</p>
+              <p className="text-xl font-bold text-white">
+                {deposits.filter(d => d.status === 'rejected').length}
+              </p>
             </div>
           </div>
         </Card>
@@ -209,8 +193,10 @@ export default function AdminDepositsPage() {
               <ArrowDownRight className="text-green-500" size={20} />
             </div>
             <div>
-              <p className="text-sm text-gray-400">Total Today</p>
-              <p className="text-xl font-bold text-green-400">$125,000</p>
+              <p className="text-sm text-gray-400">Total Amount</p>
+              <p className="text-xl font-bold text-green-400">
+                ${deposits.reduce((sum, d) => sum + (d.amount || 0), 0).toLocaleString()}
+              </p>
             </div>
           </div>
         </Card>
@@ -269,7 +255,7 @@ export default function AdminDepositsPage() {
             <div className="flex items-center justify-center py-12">
               <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
             </div>
-          ) : (
+          ) : deposits.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -290,14 +276,14 @@ export default function AdminDepositsPage() {
                         <span className="text-white font-mono text-sm">{deposit.depositRef}</span>
                       </td>
                       <td className="py-4 pr-4">
-                        <p className="text-white">{deposit.user.firstName} {deposit.user.lastName}</p>
-                        <p className="text-sm text-gray-500">{deposit.user.email}</p>
+                        <p className="text-white">{deposit.userId?.firstName || 'User'} {deposit.userId?.lastName || ''}</p>
+                        <p className="text-sm text-gray-500">{deposit.userId?.email || 'N/A'}</p>
                       </td>
                       <td className="py-4 pr-4">
-                        <p className="text-white font-semibold">${deposit.amount.toLocaleString()}</p>
+                        <p className="text-white font-semibold">${(deposit.amount || 0).toLocaleString()}</p>
                       </td>
                       <td className="py-4 pr-4">
-                        <span className="text-gray-400">{getMethodLabel(deposit.method)}</span>
+                        <span className="text-gray-400">{getMethodLabel(deposit.paymentMethod || deposit.method)}</span>
                       </td>
                       <td className="py-4 pr-4">{getStatusBadge(deposit.status)}</td>
                       <td className="py-4 pr-4 text-gray-400">
@@ -333,6 +319,12 @@ export default function AdminDepositsPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+              <ArrowDownRight size={48} className="mb-3 opacity-50" />
+              <p className="text-sm">No deposits found</p>
+              <p className="text-xs">Deposits will appear here as users make them</p>
             </div>
           )}
         </Card>

@@ -203,7 +203,7 @@ export class WalletService {
     depositAddress: string,
     amount: number,
   ) {
-    const instructions: Record<PaymentMethod, any> = {
+    const instructions: Partial<Record<PaymentMethod, any>> = {
       [PaymentMethod.CRYPTO_BTC]: {
         type: 'crypto',
         currency: 'Bitcoin',
@@ -255,6 +255,95 @@ export class WalletService {
         swiftCode: 'VARLIXXX',
         note: `Include your deposit reference in the transfer memo. Amount: $${amount}`,
       },
+      [PaymentMethod.BANK_WIRE]: {
+        type: 'bank',
+        bankName: 'Varlixo International Bank',
+        accountNumber: '1234567890',
+        accountName: 'Varlixo Holdings Ltd',
+        routingNumber: '021000021',
+        swiftCode: 'VARLIXXX',
+        note: `Wire transfer. Include your deposit reference. Amount: $${amount}`,
+      },
+      [PaymentMethod.GIFTCARD_APPLE]: {
+        type: 'giftcard',
+        cardName: 'Apple Gift Card',
+        note: 'Enter the gift card code and PIN. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_GOOGLE]: {
+        type: 'giftcard',
+        cardName: 'Google Play Gift Card',
+        note: 'Enter the gift card code. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_AMAZON]: {
+        type: 'giftcard',
+        cardName: 'Amazon Gift Card',
+        note: 'Enter the gift card code. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_STEAM]: {
+        type: 'giftcard',
+        cardName: 'Steam Gift Card',
+        note: 'Enter the gift card code. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_XBOX]: {
+        type: 'giftcard',
+        cardName: 'Xbox Gift Card',
+        note: 'Enter the gift card code. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_PLAYSTATION]: {
+        type: 'giftcard',
+        cardName: 'PlayStation Gift Card',
+        note: 'Enter the gift card code. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_ROBLOX]: {
+        type: 'giftcard',
+        cardName: 'Roblox Gift Card',
+        note: 'Enter the gift card code. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_SPOTIFY]: {
+        type: 'giftcard',
+        cardName: 'Spotify Gift Card',
+        note: 'Enter the gift card code. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_NETFLIX]: {
+        type: 'giftcard',
+        cardName: 'Netflix Gift Card',
+        note: 'Enter the gift card code. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_ITUNES]: {
+        type: 'giftcard',
+        cardName: 'iTunes Gift Card',
+        note: 'Enter the gift card code and PIN. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_EBAY]: {
+        type: 'giftcard',
+        cardName: 'eBay Gift Card',
+        note: 'Enter the gift card code. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_WALMART]: {
+        type: 'giftcard',
+        cardName: 'Walmart Gift Card',
+        note: 'Enter the gift card code and PIN. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_TARGET]: {
+        type: 'giftcard',
+        cardName: 'Target Gift Card',
+        note: 'Enter the gift card code and PIN. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_VISA]: {
+        type: 'giftcard',
+        cardName: 'Visa Gift Card',
+        note: 'Enter the card number, expiry, and CVV. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_MASTERCARD]: {
+        type: 'giftcard',
+        cardName: 'Mastercard Gift Card',
+        note: 'Enter the card number, expiry, and CVV. Card will be verified before credit.',
+      },
+      [PaymentMethod.GIFTCARD_RAZER]: {
+        type: 'giftcard',
+        cardName: 'Razer Gold Gift Card',
+        note: 'Enter the gift card code. Card will be verified before credit.',
+      },
       [PaymentMethod.PAYPAL]: {
         type: 'paypal',
         email: 'payments@varlixo.com',
@@ -270,7 +359,7 @@ export class WalletService {
       },
     };
 
-    return instructions[paymentMethod] || { note: 'Contact support for instructions.' };
+    return instructions[paymentMethod] || { type: 'other', note: 'Contact support for instructions.' };
   }
 
   /**

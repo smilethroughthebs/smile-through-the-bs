@@ -120,27 +120,8 @@ export default function InvestmentsPage() {
       setInvestmentSummary(summaryRes.data.data?.summary || null);
     } catch (error) {
       console.error('Failed to fetch investments:', error);
-      // Mock data
-      setActiveInvestments([
-        {
-          _id: '1',
-          planName: 'Gold',
-          amount: 10000,
-          dailyReturn: 2.5,
-          totalReturn: 0,
-          status: 'active',
-          startDate: '2024-01-15',
-          endDate: '2024-03-15',
-          daysRemaining: 25,
-          progress: 58,
-        },
-      ]);
-      setInvestmentSummary({
-        totalInvested: 10000,
-        activeInvestments: 1,
-        totalProfit: 1450,
-        expectedReturn: 2500,
-      });
+      setActiveInvestments([]);
+      setInvestmentSummary(null);
     } finally {
       setIsLoading(false);
     }

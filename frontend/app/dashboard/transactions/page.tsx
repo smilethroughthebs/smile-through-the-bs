@@ -101,15 +101,7 @@ export default function TransactionsPage() {
       }));
     } catch (error) {
       console.error('Failed to fetch transactions:', error);
-      // Mock data for demonstration
-      setTransactions([
-        { _id: '1', type: 'deposit', amount: 5000, status: 'completed', method: 'Bitcoin', createdAt: '2024-02-01T10:30:00', description: 'BTC Deposit' },
-        { _id: '2', type: 'investment', amount: 2500, status: 'completed', method: 'Plan: Gold', createdAt: '2024-02-01T11:00:00', description: 'Investment in Gold Plan' },
-        { _id: '3', type: 'profit', amount: 125, status: 'completed', method: 'Daily Profit', createdAt: '2024-02-02T00:00:00', description: 'Daily profit from Gold Plan' },
-        { _id: '4', type: 'withdrawal', amount: 1000, status: 'pending', method: 'Bank Transfer', createdAt: '2024-02-02T15:30:00', description: 'Withdrawal to bank' },
-        { _id: '5', type: 'referral', amount: 50, status: 'completed', method: 'Referral', createdAt: '2024-02-03T09:00:00', description: 'Referral bonus from John D.' },
-      ]);
-      setPagination(prev => ({ ...prev, total: 5, pages: 1 }));
+      setTransactions([]);
     } finally {
       setIsLoading(false);
     }
