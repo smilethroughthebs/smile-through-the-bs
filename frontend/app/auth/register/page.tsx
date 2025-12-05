@@ -18,6 +18,7 @@ import toast from 'react-hot-toast';
 import Button from '@/app/components/ui/Button';
 import Input from '@/app/components/ui/Input';
 import { Card } from '@/app/components/ui/Card';
+import PasswordStrength from '@/app/components/ui/PasswordStrength';
 import { authAPI, referralAPI } from '@/app/lib/api';
 
 // Validation schema
@@ -52,6 +53,7 @@ export default function RegisterPage() {
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [referrer, setReferrer] = useState<string | null>(null);
+  const [passwordValue, setPasswordValue] = useState('');
 
   const {
     register,
@@ -222,15 +224,19 @@ export default function RegisterPage() {
               {...register('phone')}
             />
 
-            <Input
-              label="Password"
-              type="password"
-              placeholder="Create a strong password"
-              leftIcon={<Lock size={20} />}
-              error={errors.password?.message}
-              hint="Min 8 chars with uppercase, lowercase, number & symbol"
-              {...register('password')}
-            />
+            <div className="space-y-3">
+              <Input
+                label="Password"
+                type="password"
+                placeholder="Create a strong password"
+                leftIcon={<Lock size={20} />}
+                error={errors.password?.message}
+                {...register('password', {
+                  onChange: (e) => setPasswordValue(e.target.value),
+                })}
+              />
+              <PasswordStrength password={passwordValue} />
+            </div>
 
             <Input
               label="Confirm Password"
