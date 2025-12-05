@@ -650,7 +650,7 @@ export class AuthService {
 
     const wallet = await this.walletModel.findOne({ userId: user._id });
 
-    return {
+    return { 
       success: true,
       user,
       wallet: wallet
